@@ -355,6 +355,16 @@ body{background:#000}
  .bcol{right:-60px;opacity:.5}
  h2{font-size:clamp(30px,8vw,40px)}
 }
+.fsapple{border-radius:16px;overflow:hidden;min-height:175px;background:#ffffff12;border:1px solid #ffffff1f;display:grid;place-items:center;transition:box-shadow .3s}
+.fsapple iframe{width:100%;height:175px;border:0;display:block;color-scheme:normal}
+.fsapple .note{padding:16px;text-align:center;color:#ffffffb0}
+.fsapple.pulse{animation:pulse 1.2s ease}@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #fff0}30%{box-shadow:0 0 0 4px #ffffffaa}}
+#fsplay{display:none}.fsctl{justify-content:space-around}
+.fsart{width:min(100%,34vh,440px)}
+@media (min-width:900px){.fsart,.fsp.lyr .fsart{width:min(100%,36vh)}.fsleft{gap:16px}}
+@media (max-height:760px){.fstick{display:none!important}}
+@media (max-width:899px){.fstick{display:none!important}.fsart{width:min(100%,calc(100dvh - 560px),420px);min-width:120px}.fsstage{overflow:hidden}.fsp.lyr .fsapple{min-height:0}}
+.fsp.lyr .fsart{width:64px!important;min-width:0!important}
 /* ===== GLASS THEME ===== */
 .banner[hidden]{display:none!important}
 .player{grid-template-columns:minmax(0,1fr) auto auto!important;gap:14px}
@@ -693,6 +703,7 @@ h3{font-weight:700}
           <button class="fstick" id="fstick" type="button" aria-label="Open lyrics"><small><span>Lyrics</span><span id="fstst"></span></small><b id="fstk1">Finding lyrics...</b><span id="fstk2"></span></button>
         </div>
         <div class="fsdock">
+          <div class="fsapple" id="fsapple"><p class="note">Finding the song...</p></div>
           <div class="fsprog"><div class="fsbar" id="fsbar" role="slider" aria-label="Seek" tabindex="0"><i id="fsfill"></i></div><div class="fstimes"><span id="fscur">0:00</span><span id="fsdur">0:30</span></div></div>
           <div class="fsctl">
             <button class="pb tog" id="fsshuf" type="button" aria-label="Shuffle" aria-pressed="false"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M3 7h3c4 0 6 10 10 10h4M3 17h3c1.6 0 2.8-1.6 3.9-3.6M13 9.6C14 8.2 15 7 16 7h4M17 4l3 3-3 3M17 14l3 3-3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -701,10 +712,10 @@ h3{font-weight:700}
             <button class="pb big" id="fsnext" type="button" aria-label="Next"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M18 5v14M5 5l10 7-10 7z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button>
             <button class="pb tog" id="fsrep" type="button" aria-label="Repeat song" aria-pressed="false"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M17 2l3 3-3 3M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3M20 13v2a4 4 0 0 1-4 4H4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           </div>
-          <div class="fsacts"><button class="btn" id="fsfull" type="button">Full song</button><a class="btn" id="fsyt" href="#" target="_blank" rel="noopener">YouTube Music</a></div>
+          <div class="fsacts"><a class="btn" id="fsfull" href="https://music.apple.com" target="_blank" rel="noopener">Open in Music app</a><a class="btn" id="fsyt" href="#" target="_blank" rel="noopener">YouTube Music</a></div>
         </div>
       </div>
-      <div class="fslyr" id="fslyr"><button class="fshint" id="fshint" type="button" hidden>Tap the line you're hearing to sync</button><div class="fslines" id="fslines"></div><span class="fssrc" id="fssrc"></span></div>
+      <div class="fslyr" id="fslyr"><button class="fshint" id="fshint" type="button" hidden>Press play and the lyrics follow. Tap a line to re-sync</button><div class="fslines" id="fslines"></div><span class="fssrc" id="fssrc"></span></div>
     </div>
     <div class="fsq" id="fsqwrap" hidden><div class="shead"><b style="font:800 18px Unbounded,sans-serif">Up next</b><button class="pb" id="fsqclose" type="button" aria-label="Close up next">✕</button></div><ol class="queue" id="fsqueue"></ol></div>
   </div>
@@ -1161,9 +1172,9 @@ let loadTrack=async(auto)=>{if(NI<0)return;const [t,a]=Q[NI];const me=NI;$('full
  const r=await lookup(t,a);if(me!==NI)return;curTrack=r;
  if(!r){$('full').innerHTML='<span class="note">Not found on Apple Music. Try YouTube.</span>';aud.removeAttribute('src');setIcon(false);return}
  const emb=`<iframe allow="autoplay *; encrypted-media *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation" src="${r.trackId?'https://embed.music.apple.com/gb/song/'+encodeURIComponent(String(r.trackId)):'about:blank'}" title="Apple Music full song player"></iframe>`;if(!$('sheet').hidden){$('sfull').innerHTML=emb;$('appopen').href=String(r.trackViewUrl||'').startsWith('https://')?r.trackViewUrl:apple(t,a)}else $('sfull').dataset.emb='1';
- $('full').innerHTML=`<iframe allow="autoplay *; encrypted-media *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation" src="${r.trackId?'https://embed.music.apple.com/gb/song/'+encodeURIComponent(String(r.trackId)):'about:blank'}" title="Apple Music player"></iframe><span class="note">Full song plays here when you're signed in to Apple Music.</span>`;
+ $('full').innerHTML='';
  if(r.artworkUrl100){const art=`url("${String(r.artworkUrl100).replace('100x100','600x600')}") center/cover`;$('part').style.background=art;$('nart2').style.background=art}
- if(r.previewUrl){aud.src=r.previewUrl;if(auto){try{await aud.play()}catch(_){setIcon(false)}}}};
+ aud.removeAttribute('src');if(window.fsApple)window.fsApple(r)};
 const _setNow=setNow;setNow=(i,auto)=>{_setNow(i);aud.pause();setIcon(false);$('pfill').style.width='0';$('pcur').textContent='0:00';loadTrack(auto)};
 $('pplay').addEventListener('click',async()=>{if(!aud.src){await loadTrack(true);return}if(aud.paused){try{await aud.play()}catch(_){}}else aud.pause()});
 aud.addEventListener('play',()=>setIcon(true));aud.addEventListener('pause',()=>setIcon(false));
@@ -1221,7 +1232,9 @@ fbn.addEventListener('click',async()=>{if(MK){if(!MK.isAuthorized){try{await MK.
 setNow(0,false);
 
 // ===== UI 100x: real artwork, ambient colour, full-screen player, tab bar =====
-const findTrack=async(t,a)=>{const k=t+'|'+a;if(k in cache)return cache[k];const r=await itunes(t+' '+String(a).replace(/ ft\..*| & .*/,''),5);let v=null;if(r&&r.length){const al=String(a).toLowerCase().split(/ ft\.| & |,/)[0].trim();v=r.find(x=>(x.artistName||'').toLowerCase().includes(al))||r[0]}cache[k]=v;return v};
+const nrm=x=>String(x||'').toLowerCase().replace(/\(.*?\)|\[.*?\]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+const bestMatch=(r,t,a)=>{const tt=nrm(t),al=nrm(String(a).split(/ ft\.| feat\.| & |,/)[0]);let best=null,bs=-1;for(const x of r){const xt=nrm(x.trackName),xa=nrm(x.artistName);let sc=0;if(xt===tt)sc+=10;else if(xt.startsWith(tt)||tt.startsWith(xt))sc+=6;else if(xt.includes(tt)||tt.includes(xt))sc+=3;if(xa.includes(al)||al.includes(xa))sc+=5;if(sc>bs){bs=sc;best=x}}return best};
+const findTrack=async(t,a)=>{const k=t+'|'+a;if(k in cache)return cache[k];const r=await itunes(t+' '+String(a).replace(/ ft\..*| & .*/,''),10);let v=null;if(r&&r.length)v=bestMatch(r,t,a);cache[k]=v;return v};
 window.findTrack2=findTrack;const big=u=>String(u||'').replace(/\d+x\d+bb/,'600x600bb');
 const artQ=[];let artBusy=0;const pump=()=>{while(artBusy<3&&artQ.length){const job=artQ.shift();artBusy++;findTrack(job.t,job.a).then(v=>{const u=v&&big(v.artworkUrl100);if(u&&u.startsWith('https://'))job.set(u)}).catch(()=>{}).finally(()=>{artBusy--;pump()})}};
 const io=new IntersectionObserver(es=>{es.forEach(e=>{if(!e.isIntersecting)return;io.unobserve(e.target);const j=e.target._job;if(j){artQ.push(j);pump()}})},{rootMargin:'300px'});
@@ -1250,7 +1263,7 @@ $('fstick').addEventListener('click',()=>setView('lyr'));
 document.querySelector('.pl-l').addEventListener('click',openFS);$('nart2').addEventListener('click',openFS);$('nart2').style.cursor='pointer';
 $('fsclose').addEventListener('click',closeFS);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!fsp.hidden)closeFS()});
 $('fsplay').addEventListener('click',()=>$('pplay').click());$('fsprev').addEventListener('click',()=>$('prev').click());$('fsnext').addEventListener('click',()=>$('next').click());
-$('fsfull').addEventListener('click',()=>{closeFS();$('fullbtn').click()});
+
 const fsQ=on=>{$('fsqwrap').hidden=!on;$('fsqbtn').setAttribute('aria-pressed',String(on))};
 $('fsqbtn').addEventListener('click',()=>fsQ($('fsqwrap').hidden));$('fsqclose').addEventListener('click',()=>fsQ(false));
 $('fsqueue').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(b){fsQ(false);setNow(+b.dataset.q,true)}});
@@ -1260,9 +1273,10 @@ $('fsshuf').addEventListener('click',()=>{const on=$('fsshuf').getAttribute('ari
 $('fsrep').addEventListener('click',()=>{const on=$('fsrep').getAttribute('aria-pressed')!=='true';$('fsrep').setAttribute('aria-pressed',String(on));aud.loop=on;if(MK)try{MK.repeatMode=on?1:0}catch(_){}});
 // time source: Apple Music (full song) when connected, otherwise the in-page preview
 const mkOn=()=>!!(MK&&MK.isAuthorized&&MK.nowPlayingItem&&curTrack&&String(MK.nowPlayingItem.id)===String(curTrack.trackId));
-const curT=()=>mkOn()?(MK.currentPlaybackTime||0):aud.currentTime;
-const seekTo=s=>{if(mkOn()){try{MK.seekToTime(s)}catch(_){}}else if(aud.duration)aud.currentTime=Math.max(0,Math.min(aud.duration-.2,s))};
-const durT=()=>mkOn()?(MK.currentPlaybackDuration||0):(aud.duration||30);
+const CLK={t0:0,off:0,run:false};const clkT=()=>CLK.run?CLK.off+(performance.now()-CLK.t0)/1000:CLK.off;const clkSet=s=>{CLK.off=Math.max(0,s);CLK.t0=performance.now();CLK.run=true;lyOff=0};const clkStart=()=>{if(!CLK.run)clkSet(CLK.off)};const clkReset=()=>{CLK.off=0;CLK.run=false};
+const curT=()=>mkOn()?(MK.currentPlaybackTime||0):clkT();
+const seekTo=s=>{if(mkOn()){try{MK.seekToTime(s)}catch(_){}}else clkSet(s)};
+const durT=()=>mkOn()?(MK.currentPlaybackDuration||0):((curTrack&&curTrack.trackTimeMillis)/1000||(curTrack&&curTrack.duration)||210);
 // scrubbing
 {const bar=$('fsbar');let drag=false;const at=e=>{const r=bar.getBoundingClientRect();return Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))};
  bar.addEventListener('pointerdown',e=>{drag=true;bar.classList.add('drag');bar.setPointerCapture(e.pointerId);$('fsfill').style.width=at(e)*100+'%'});
@@ -1294,7 +1308,7 @@ const lyRender=()=>{const el=$('fslines');el.classList.remove('plain');$('fshint
  const msg=LY.inst?'This one is instrumental. Just vibe.':'No lyrics found for this song yet.';el.innerHTML=`<p class="fslmsg">${msg}</p>`;$('fstk1').textContent=msg;$('fstk2').textContent='';$('fstst').textContent=''};
 const lyLoad=async()=>{if(NI<0)return;const [t,a]=Q[NI];const k=t+'|'+a;if(k===lyKey)return;lyKey=k;LY=null;lyOff=null;lyIdx=-2;lyRender();const r=await getLyrics(t,a);if(lyKey!==k)return;LY=r;lyRender();$('fslines').scrollTop=0};
 $('fslines').addEventListener('click',e=>{const b=e.target.closest('.ll[data-i]');if(!b||!LY||!LY.sync)return;const l=LY.sync[+b.dataset.i];
- if(mkOn())seekTo(l.t);else{lyOff=l.t-aud.currentTime;$('fshint').hidden=true;$('fstst').textContent='Live'}lyFollow=0;lyIdx=-2});
+ if(mkOn())seekTo(l.t);else{clkSet(l.t);$('fshint').hidden=true;$('fstst').textContent='Live'}lyFollow=0;lyIdx=-2});
 $('fshint').addEventListener('click',()=>{$('fshint').hidden=true});
 {const el=$('fslines');['wheel','touchmove'].forEach(ev=>el.addEventListener(ev,()=>{lyFollow=Date.now()+3500},{passive:true}))}
 const lyTick=()=>{if(fsp.hidden)return;requestAnimationFrame(lyTick);if(!LY||!LY.sync||!LY.sync.length)return;
@@ -1303,7 +1317,7 @@ const lyTick=()=>{if(fsp.hidden)return;requestAnimationFrame(lyTick);if(!LY||!LY
  const cur=LY.sync[i],nx=LY.sync.slice(i+1).find(l=>l.x);$('fstk1').textContent=cur?(cur.x||'• • •'):(LY.sync[0].x||'');$('fstk2').textContent=nx?nx.x:'';
  if(i>=0&&Date.now()>lyFollow){const el=$('fslines'),c=els[i];if(c&&el.clientHeight)el.scrollTo({top:c.offsetTop-el.clientHeight*.32,behavior:'smooth'})}};
 let lastNI=-2;const syncFS=()=>{if(fsp.hidden)return;if(!(window._fsDrag&&window._fsDrag()))$('fsfill').style.width=$('pfill').style.width||'0';$('fscur').textContent=$('pcur').textContent;$('fsdur').textContent=$('pdur').textContent;
- const playing=$('pplay').getAttribute('aria-label')==='Pause';$('fsplay').innerHTML=playing?'<svg width="32" height="32" viewBox="0 0 14 14"><rect x="3" y="2" width="3" height="10" rx=".6" fill="currentColor"/><rect x="8" y="2" width="3" height="10" rx=".6" fill="currentColor"/></svg>':'<svg width="32" height="32" viewBox="0 0 14 14"><path d="M4 1.8v10.4l8.4-5.2z" fill="currentColor" stroke="currentColor" stroke-linejoin="round"/></svg>';fsp.classList.toggle('paused',!playing);
+ const playing=mkOn()?$('pplay').getAttribute('aria-label')==='Pause':CLK.run;$('fsplay').innerHTML=playing?'<svg width="32" height="32" viewBox="0 0 14 14"><rect x="3" y="2" width="3" height="10" rx=".6" fill="currentColor"/><rect x="8" y="2" width="3" height="10" rx=".6" fill="currentColor"/></svg>':'<svg width="32" height="32" viewBox="0 0 14 14"><path d="M4 1.8v10.4l8.4-5.2z" fill="currentColor" stroke="currentColor" stroke-linejoin="round"/></svg>';fsp.classList.toggle('paused',!playing);
  if(lastNI!==NI&&NI>=0){lastNI=NI;const [t,a,g]=Q[NI];$('fst').textContent=t;$('fsa').textContent=a;$('fsyt').href=ytm(t+' '+a);$('fsrate').innerHTML=rateSel(t,a,'player');if(!$('fsart').style.backgroundImage)$('fsart').style.background=coverBg(t+a,g);$('fsqueue').innerHTML=$('queue').innerHTML;lyLoad()}};
 setInterval(syncFS,300);
 // tapping any song opens the now-playing screen
@@ -1320,6 +1334,20 @@ $('tabbar').addEventListener('click',e=>{const b=e.target.closest('.tb');if(!b)r
 $('moregrid').addEventListener('click',e=>{const b=e.target.closest('[data-goto]');if(!b)return;$('more').hidden=true;go(b.dataset.goto);window.scrollTo({top:0});markTab()});
 $('moreclose').addEventListener('click',()=>$('more').hidden=true);$('more').addEventListener('click',e=>{if(e.target===$('more'))$('more').hidden=true});
 new MutationObserver(markTab).observe(document.querySelector('main'),{attributes:true,subtree:true,attributeFilter:['hidden']});markTab();
+// ===== full songs: Apple Music player inside the now-playing screen (no 30s clip) =====
+{const box=$('fsapple');let curId='';
+ window.fsApple=r=>{const id=r&&r.trackId?String(r.trackId):'';const u=r&&String(r.trackViewUrl||'');$('fsfull').href=u.startsWith('https://')?u:(NI>=0?apple(Q[NI][0],Q[NI][1]):'https://music.apple.com');
+  if(!id){curId='';box.innerHTML='<p class="note">This one isn\'t on Apple Music. Try YouTube Music below.</p>';return}
+  if(id===curId)return;curId=id;box.innerHTML=`<iframe id="fsframe" allow="autoplay *; encrypted-media *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/gb/song/${encodeURIComponent(id)}" title="Apple Music full song player"></iframe>`};
+ // when you tap play inside the Apple player, start the lyrics clock
+ window.addEventListener('blur',()=>setTimeout(()=>{const f=document.activeElement;if(f&&f.id==='fsframe'){if(!CLK.run){clkSet(CLK.off);lyIdx=-2;lyRender()}}},0));
+ // mini player: Play opens the now-playing screen with the full-song player
+ const old=$('pplay');const np=old.cloneNode(true);old.replaceWith(np);
+ np.addEventListener('click',()=>{if(fsp.hidden)openFS();box.classList.remove('pulse');void box.offsetWidth;box.classList.add('pulse')});
+ const _sn2=setNow;setNow=(i,auto)=>{clkReset();lyOff=null;_sn2(i,auto)};
+ setInterval(()=>{if(mkOn())return;const d=durT(),c=Math.min(clkT(),d);if(CLK.run&&c>=d)CLK.run=false;$('pfill').style.width=(d?100*c/d:0)+'%';$('pcur').textContent=fmt(c);$('pdur').textContent=fmt(d);setIcon(CLK.run)},250);
+ $('fullbtn').style.display='none';
+ if(curTrack)window.fsApple(curTrack)}
 // ===== glass home: rail, pill tabs, mixes, mood tiles, home queue =====
 {const rail=document.createElement('nav');rail.className='rail';rail.id='rail';rail.setAttribute('aria-label','Quick');
  rail.innerHTML='<div class="rlogo"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path d="M8 6 L15 3 L22 6 M8 6 L10 24 M22 6 L20 24 M10 24 L20 24 M15 3 L15 24" stroke="#fff" stroke-width="1.5" fill="none"/><circle cx="15" cy="3" r="2.6" fill="#fff"/><circle cx="8" cy="6" r="2" fill="#9d7bff"/><circle cx="22" cy="6" r="2" fill="#2fd3bd"/><circle cx="10" cy="24" r="2" fill="#ffbe3d"/><circle cx="20" cy="24" r="2" fill="#ff4f87"/></svg></div>'+TABS.map(t=>`<button class="tb" type="button" data-tab="${t[0]}" title="${t[1]}" aria-label="${t[1]}"><svg viewBox="0 0 24 24" aria-hidden="true">${IC[t[2]]}</svg>${t[1]}</button>`).join('');
