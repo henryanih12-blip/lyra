@@ -1174,7 +1174,7 @@ document.addEventListener('change',e=>{if(e.target.closest('select.rate:not([dat
 // ---------- web playback (iTunes previews + Apple Music embed) ----------
 const aud=$('aud');const cache={};let reqN=0;
 const fmt=s=>isFinite(s)?Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'):'0:30';
-const lookup=(t,a)=>{const k=t+'|'+a;if(cache[k])return Promise.resolve(cache[k]);if(window.findTrack2)return window.findTrack2(t,a);return new Promise(res=>{const cb='itcb'+(++reqN);const sc=document.createElement('script');const done=v=>{delete window[cb];sc.remove();cache[k]=v;res(v)};
+const lookup=(t,a)=>{const k=t+'|'+a;if(cache[k]&&cache[k].trackId)return Promise.resolve(cache[k]);if(window.findTrack2)return window.findTrack2(t,a);return new Promise(res=>{const cb='itcb'+(++reqN);const sc=document.createElement('script');const done=v=>{delete window[cb];sc.remove();cache[k]=v;res(v)};
  window[cb]=d=>{const r=(d&&d.results)||[];const al=a.toLowerCase().split(/ ft\.| & |,/)[0].trim();done(r.find(x=>(x.artistName||'').toLowerCase().includes(al))||r[0]||null)};
  sc.onerror=()=>done(null);setTimeout(()=>{if(window[cb])done(null)},8000);
  sc.src='https://itunes.apple.com/search?entity=song&limit=5&country=gb&callback='+cb+'&term='+encodeURIComponent(t+' '+a.replace(/ ft\..*/,''));document.head.appendChild(sc)})};
@@ -1246,9 +1246,22 @@ setNow(0,false);
 // ===== UI 100x: real artwork, ambient colour, full-screen player, tab bar =====
 const nrm=x=>String(x||'').toLowerCase().replace(/\(.*?\)|\[.*?\]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
 const bestMatch=(r,t,a)=>{const tt=nrm(t),al=nrm(String(a).split(/ ft\.| feat\.| & |,/)[0]);let best=null,bs=-1;for(const x of r){const xt=nrm(x.trackName),xa=nrm(x.artistName);let sc=0;if(xt===tt)sc+=10;else if(xt.startsWith(tt)||tt.startsWith(xt))sc+=6;else if(xt.includes(tt)||tt.includes(xt))sc+=3;if(xa.includes(al)||al.includes(xa))sc+=5;if(sc>bs){bs=sc;best=x}}return best};
-const findTrack=async(t,a)=>{const k=t+'|'+a;if(k in cache)return cache[k];const r=await itunes(t+' '+String(a).replace(/ ft\..*| & .*/,''),10);let v=null;if(r&&r.length)v=bestMatch(r,t,a);cache[k]=v;return v};
-window.findTrack2=findTrack;const big=u=>String(u||'').replace(/\d+x\d+bb/,'600x600bb');
-const artQ=[];let artBusy=0;const pump=()=>{while(artBusy<3&&artQ.length){const job=artQ.shift();artBusy++;findTrack(job.t,job.a).then(v=>{const u=v&&big(v.artworkUrl100);if(u&&u.startsWith('https://'))job.set(u)}).catch(()=>{}).finally(()=>{artBusy--;pump()})}};
+const findTrack=async(t,a)=>{const k=t+'|'+a;if(typeof AMC!=='undefined'&&AMC[k])return AMC[k];if(k in cache)return cache[k];const r=await itunes(t+' '+String(a).replace(/ ft\..*| & .*/,''),10);let v=null;if(r&&r.length)v=bestMatch(r,t,a);cache[k]=v;return v};
+// reliable Apple Music lookup for playback (iTunes only, retries, remembered on this device)
+const LS='lyra-am-v1';let AMC={};try{AMC=JSON.parse(localStorage.getItem(LS)||'{}')}catch(_){}
+const amSave=()=>{try{localStorage.setItem(LS,JSON.stringify(AMC))}catch(_){}};
+const slim=x=>({trackId:x.trackId,trackName:x.trackName,artistName:x.artistName,artworkUrl100:x.artworkUrl100,trackViewUrl:x.trackViewUrl,trackTimeMillis:x.trackTimeMillis,primaryGenreName:x.primaryGenreName});
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const appleTrack=async(t,a)=>{const k=t+'|'+a;if(AMC[k])return AMC[k];const c=cache[k];if(c&&c.trackId)return c;
+ const main=String(a).split(/ ft\.| feat\.| featuring |, | & | x /i)[0].trim();const ct=String(t).replace(/\s*[\(\[][^\)\]]*[\)\]]?/g,'').replace(/\s+-\s+.*$/,'').trim();
+ const qs=[...new Set([t+' '+main,ct+' '+main,ct+' '+a,ct])];
+ for(const q of qs){let r=null;for(let n=0;n<3&&r==null;n++){r=await itunesRaw(q,15);if(r==null)await sleep(1200*(n+1))}
+  const ok=(r||[]).filter(x=>x.trackId&&x.kind!=='music-video');if(!ok.length)continue;const b=bestMatch(ok,t,a);
+  if(b&&q===ct&&qs.length>1){const xa=nrm(b.artistName),ma=nrm(main);if(!(xa.includes(ma)||ma.includes(xa)))continue}
+  if(b){const v=slim(b);AMC[k]=v;cache[k]=v;amSave();return v}}
+ return null};
+window.findTrack2=appleTrack;const big=u=>String(u||'').replace(/\d+x\d+bb/,'600x600bb');
+const artQ=[];let artBusy=0;const pump=()=>{while(artBusy<2&&artQ.length){const job=artQ.shift();artBusy++;findTrack(job.t,job.a).then(v=>{const u=v&&big(v.artworkUrl100);if(u&&u.startsWith('https://'))job.set(u)}).catch(()=>{}).finally(()=>{artBusy--;pump()})}};
 const io=new IntersectionObserver(es=>{es.forEach(e=>{if(!e.isIntersecting)return;io.unobserve(e.target);const j=e.target._job;if(j){artQ.push(j);pump()}})},{rootMargin:'300px'});
 const withArt=(el,u)=>{const img=new Image();img.onload=()=>{el.style.backgroundImage=`url("${u}")`;el.style.backgroundSize='cover';el.style.backgroundPosition='center'};img.src=u};
 const decorate=()=>{
@@ -1349,8 +1362,9 @@ new MutationObserver(markTab).observe(document.querySelector('main'),{attributes
 // ===== full songs: Apple Music player inside the now-playing screen (no 30s clip) =====
 {const box=$('fsapple');let curId='';
  window.fsApple=r=>{const id=r&&r.trackId?String(r.trackId):'';const u=r&&String(r.trackViewUrl||'');$('fsfull').href=u.startsWith('https://')?u:(NI>=0?apple(Q[NI][0],Q[NI][1]):'https://music.apple.com');
-  if(!id){curId='';box.innerHTML='<p class="note">This one isn\'t on Apple Music. Try YouTube Music below.</p>';return}
+  if(!id){curId='';box.innerHTML='<div class="note">Couldn\'t load this one from Apple Music just now.<br><button class="btn" type="button" id="amretry" style="margin-top:10px">Try again</button></div>';return}
   if(id===curId)return;curId=id;box.innerHTML=`<iframe id="fsframe" allow="autoplay *; encrypted-media *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/gb/song/${encodeURIComponent(id)}" title="Apple Music full song player"></iframe>`};
+ box.addEventListener('click',async e=>{if(!e.target.closest('#amretry')||NI<0)return;box.innerHTML='<p class="note">Finding the song...</p>';const [t,a]=Q[NI];const k=t+'|'+a;delete cache[k];const v=await appleTrack(t,a);if(v){curTrack=v;curId='';window.fsApple(v)}else window.fsApple(null)});
  // when you tap play inside the Apple player, start the lyrics clock
  window.addEventListener('blur',()=>setTimeout(()=>{const f=document.activeElement;if(f&&f.id==='fsframe'){if(!CLK.run){clkSet(CLK.off);lyIdx=-2;lyRender()}}},0));
  // mini player: Play opens the now-playing screen with the full-song player
