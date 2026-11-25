@@ -363,7 +363,7 @@ body{background:#000}
 .fsart{width:min(100%,34vh,440px)}
 @media (min-width:900px){.fsart,.fsp.lyr .fsart{width:min(100%,36vh)}.fsleft{gap:16px}}
 @media (max-height:760px){.fstick{display:none!important}}
-@media (max-width:899px){.fstick{display:none!important}.fsart{width:min(100%,calc(100dvh - 560px),420px);min-width:120px}.fsstage{overflow:hidden}.fsp.lyr .fsapple{min-height:0}}
+@media (max-width:899px){.fstick{display:none!important}.fsart{width:min(100%,calc(100dvh - 470px),420px);min-width:120px}.fsstage{overflow:hidden}.fsp.lyr .fsapple{min-height:0}}
 .fsp.lyr .fsart{width:64px!important;min-width:0!important}
 .plgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,170px),1fr));gap:18px;margin-bottom:10px}.plgrid[hidden]{display:none}
 .plc{background:none;border:0;color:#fff;text-align:left;cursor:pointer;padding:0;font:inherit}
@@ -377,6 +377,7 @@ body{background:#000}
 .pllist .mrow span:not(.gdot){flex:1;min-width:0}.pllist .mrow b,.pllist .mrow small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pllist .gdot{width:8px;height:8px;border-radius:50%;flex:none}
 @media(max-width:600px){.plhead{flex-direction:column;align-items:flex-start}.plgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}}
+.fsp .fsacts,.fsp .fsprog,.player .prog{display:none!important}
 /* ===== GLASS THEME ===== */
 .banner[hidden]{display:none!important}
 .player{grid-template-columns:minmax(0,1fr) auto auto!important;gap:14px}
@@ -1182,7 +1183,7 @@ const setIcon=p=>{$('picon').innerHTML=p?'<rect x="3" y="2" width="3" height="10
 let curTrack=null;
 let loadTrack=async(auto)=>{if(NI<0)return;const [t,a]=Q[NI];const me=NI;$('full').innerHTML='<span class="note">Finding the song...</span>';
  const r=await lookup(t,a);if(me!==NI)return;curTrack=r;
- if(!r){$('full').innerHTML='<span class="note">Not found on Apple Music. Try YouTube.</span>';aud.removeAttribute('src');setIcon(false);return}
+ if(!r){$('full').innerHTML='';aud.removeAttribute('src');setIcon(false);if(window.fsApple)window.fsApple(null);return}
  const emb=`<iframe allow="autoplay *; encrypted-media *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation" src="${r.trackId?'https://embed.music.apple.com/gb/song/'+encodeURIComponent(String(r.trackId)):'about:blank'}" title="Apple Music full song player"></iframe>`;if(!$('sheet').hidden){$('sfull').innerHTML=emb;$('appopen').href=String(r.trackViewUrl||'').startsWith('https://')?r.trackViewUrl:apple(t,a)}else $('sfull').dataset.emb='1';
  $('full').innerHTML='';
  if(r.artworkUrl100){const art=`url("${String(r.artworkUrl100).replace('100x100','600x600')}") center/cover`;$('part').style.background=art;$('nart2').style.background=art}
@@ -1370,8 +1371,9 @@ new MutationObserver(markTab).observe(document.querySelector('main'),{attributes
  // mini player: Play opens the now-playing screen with the full-song player
  const old=$('pplay');const np=old.cloneNode(true);old.replaceWith(np);
  np.addEventListener('click',()=>{if(fsp.hidden)openFS();box.classList.remove('pulse');void box.offsetWidth;box.classList.add('pulse')});
- const _sn2=setNow;setNow=(i,auto)=>{clkReset();lyOff=null;_sn2(i,auto)};
- setInterval(()=>{if(mkOn())return;const d=durT(),c=Math.min(clkT(),d);if(CLK.run&&c>=d)CLK.run=false;$('pfill').style.width=(d?100*c/d:0)+'%';$('pcur').textContent=fmt(c);$('pdur').textContent=fmt(d);setIcon(CLK.run)},250);
+ const _sn2=setNow;setNow=(i,auto)=>{clkReset();lyOff=null;curId='';curTrack=null;box.innerHTML='<p class="note">Loading the song...</p>';_sn2(i,auto)};
+ setInterval(()=>{if(curTrack&&NI>=0&&curTrack.artworkUrl100){const u=big(curTrack.artworkUrl100);if(u.startsWith('https://')){const f=$('fsart');if(!/url\("?https/.test(f.style.backgroundImage)){f.style.background='';f.style.backgroundImage=`url("${u}")`;f.style.backgroundSize='cover';f.style.backgroundPosition='center'}const pa=$('part');if(!/url\("?https/.test(pa.style.backgroundImage||pa.style.background))pa.style.background=`url("${u}") center/cover`}}
+ if(mkOn())return;const d=durT(),c=Math.min(clkT(),d);if(CLK.run&&c>=d)CLK.run=false;$('pfill').style.width=(d?100*c/d:0)+'%';$('pcur').textContent=fmt(c);$('pdur').textContent=fmt(d);setIcon(CLK.run)},250);
  $('fullbtn').style.display='none';
  if(curTrack)window.fsApple(curTrack)}
 // ===== your playlists (757 songs from your Apple Music) =====
