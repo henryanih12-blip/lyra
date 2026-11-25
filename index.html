@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lyra</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#040205">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: premium, cinematic, personal: a music intelligence that knows your sound.
+   IDEA: a night sky of your music; Lyra the constellation (the lyre), each world a star cluster.
+   PICTURE: glowing constellation + live waveform in the hero; generated cover art; an explorable universe map.
+   COLOUR and TYPE: OLED black, four world colours (rose R&B, violet trap, gold Afro, teal UK) as ambient glows; Unbounded + Inter.
+   LAYOUT: sidebar nav on desktop, top scroller on phone; each section a page with an ambient glow in its accent. */
+:root{color-scheme:dark;--bg:#040205;--panel:#ffffff0a;--panel2:#ffffff12;--line:#ffffff17;--ink:#f6f0f4;--mute:#b7a9b2;--rose:#ff4f87;--violet:#9d7bff;--gold:#ffbe3d;--teal:#2fd3bd;--acc:var(--rose)}
+*{box-sizing:border-box;min-width:0}html{scroll-padding-top:80px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:Unbounded,Inter,sans-serif;line-height:1.05;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h2{font-size:clamp(28px,4.4vw,46px);font-weight:800}h3{font-size:19px;font-weight:600}
+a{color:inherit}:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
+.glow{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(50% 45% at 80% 5%,color-mix(in srgb,var(--acc) 26%,transparent),transparent 70%),radial-gradient(40% 40% at 0% 100%,color-mix(in srgb,var(--acc) 14%,transparent),transparent 70%);transition:background .8s}
+.app{position:relative;z-index:1;display:grid;grid-template-columns:230px minmax(0,1fr) 300px;gap:14px;padding:14px 14px 110px;min-height:100vh;align-items:start}
+aside{position:sticky;top:14px;height:calc(100vh - 124px);padding:22px 14px;border:1px solid var(--line);border-radius:24px;display:flex;flex-direction:column;gap:4px;background:#0f0c12e6;backdrop-filter:blur(18px);overflow-y:auto;scrollbar-width:none}
+.slbl{font-size:12px;color:var(--mute);margin:14px 12px 6px;font-weight:600}
+.mainp{background:#0b090dcc;border:1px solid var(--line);border-radius:24px}
+.topbar{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+.sbox{flex:1;display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;border-radius:999px;background:#ffffff0d;border:1px solid var(--line);color:var(--mute);max-width:520px}
+.sbox input{flex:1;background:transparent!important;border:0!important;padding:0!important;color:var(--ink);font:16px Inter,sans-serif;outline:none;min-height:44px}
+.avatar{margin-left:auto;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font:800 16px Unbounded,sans-serif;background:conic-gradient(var(--rose),var(--violet),var(--teal),var(--gold),var(--rose));color:#0a0408;flex:none}
+.moods{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:22px}
+.mood{flex:none;min-height:38px;padding:0 14px;border-radius:999px;border:0;background:transparent;color:var(--mute);font:600 14px Inter,sans-serif;cursor:pointer}
+.mood:hover{color:var(--ink)}.mood[aria-current=true]{color:var(--acc);background:#ffffff0d}
+.banner{position:relative;border-radius:26px;overflow:hidden;min-height:clamp(240px,30vw,320px);display:flex;align-items:flex-end;background:radial-gradient(70% 90% at 80% 20%,#2fd3bd55,transparent 60%),radial-gradient(60% 80% at 20% 100%,#9d7bff66,transparent 60%),linear-gradient(120deg,#0b1d3a,#130726 60%,#2a0a26);border:1px solid #ffffff22;margin-bottom:26px}
+.bwave{position:absolute;inset:0;width:100%;height:100%}
+.bin{position:relative;padding:clamp(20px,3.5vw,40px);max-width:620px}
+.bin h1{font-size:clamp(34px,5.4vw,60px);font-weight:800}.bin h1 em{font-style:normal;background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.bin p{color:#e8e0f0;margin:10px 0 16px;font-size:16px}
+.sechead{display:flex;justify-content:space-between;align-items:center;margin:0 0 14px}
+.link{background:none;border:0;color:var(--acc);font:600 13px Inter,sans-serif;cursor:pointer;min-height:36px}
+.arow{display:flex;gap:18px;overflow-x:auto;padding-bottom:12px;margin-bottom:22px;scroll-snap-type:x mandatory}
+.ab{flex:0 0 118px;scroll-snap-align:start;background:none;border:0;color:var(--ink);cursor:pointer;text-align:center;font:600 13px Inter,sans-serif;padding:0}
+.ab i{display:grid;place-items:center;width:118px;height:118px;border-radius:26px;margin-bottom:8px;font:800 30px Unbounded,sans-serif;font-style:normal;color:#fff;text-shadow:0 2px 10px #0007;box-shadow:0 14px 30px -14px #000;transition:transform .2s}
+.ab:hover i{transform:translateY(-3px)}.ab small{display:block;color:var(--mute);font-weight:500;font-size:12px}
+.ovgrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:14px}
+.drow{display:grid;grid-template-columns:minmax(0,1fr) 5.5em auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}.drow:last-child{border:0}@media(max-width:600px){.drow{grid-template-columns:minmax(0,1fr) auto}.drow .dw{display:none}}
+.mrow{display:flex;align-items:center;gap:10px;background:none;border:0;color:var(--ink);font:inherit;cursor:pointer;text-align:left;padding:0}
+.mrow i{width:38px;height:38px;border-radius:10px;flex:none}.mrow b{display:block;font-weight:600;font-size:14px}.mrow small{color:var(--mute);font-size:12px}
+.now{padding:18px}.nlbl{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--mute);margin-bottom:12px}
+.eqs{display:inline-flex;gap:2px;align-items:end;height:14px}.eqs i{width:3px;background:var(--acc);border-radius:2px;animation:eq .9s ease-in-out infinite alternate}.eqs i:nth-child(2){animation-delay:.2s}.eqs i:nth-child(3){animation-delay:.4s}@keyframes eq{from{height:3px}to{height:14px}}
+.nart{aspect-ratio:1;border-radius:20px;background:radial-gradient(circle at 50% 50%,#ffffff10,#0000 60%),linear-gradient(140deg,#2fd3bd55,#9d7bff55,#ff4f8755);margin-bottom:14px;box-shadow:0 20px 40px -20px #000}
+.ntitle{font:800 18px Unbounded,sans-serif;line-height:1.15}.nartist{color:var(--mute);font-size:14px}
+.queue{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.player{position:fixed;left:14px;right:14px;bottom:14px;z-index:30;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:16px;align-items:center;padding:10px 16px;border-radius:22px;background:#17131ae8;border:1px solid #ffffff22;backdrop-filter:blur(20px);box-shadow:0 20px 50px -20px #000}
+.pl-l{display:flex;gap:12px;align-items:center;min-width:0}.pl-art{width:52px;height:52px;border-radius:12px;flex:none;background:linear-gradient(140deg,#2fd3bd,#9d7bff,#ff4f87)}
+.pl-t{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pl-a{font-size:13px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-c{display:flex;align-items:center;gap:10px}.pl-note{font-size:12px;color:var(--mute);white-space:nowrap}
+.pb{width:44px;height:44px;border-radius:50%;border:0;background:transparent;color:var(--ink);display:grid;place-items:center;cursor:pointer}.pb:hover{background:#ffffff14}
+.pplay{width:52px;height:52px;border-radius:50%;background:var(--ink);color:#0a0408;display:grid;place-items:center;box-shadow:0 0 0 6px #ffffff12}
+.pl-r{display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+.brand{flex:none;display:flex;align-items:center;gap:10px;margin:0 8px 22px}.brand b{font:800 24px Unbounded,sans-serif;letter-spacing:.02em}
+.brand small{display:block;font-size:11px;color:var(--mute);font-weight:500}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nb{display:flex;align-items:center;gap:12px;min-height:42px;padding:0 12px;border-radius:12px;border:0;background:transparent;color:var(--mute);font:600 14px Inter,sans-serif;text-align:left;cursor:pointer;text-decoration:none}
+.nb i{width:8px;height:8px;border-radius:50%;background:currentColor;opacity:.5;flex:none}
+.nb:hover{background:var(--panel);color:var(--ink)}.nb[aria-current=page]{background:var(--panel2);color:var(--ink)}.nb[aria-current=page] i{background:var(--acc);opacity:1;box-shadow:0 0 10px var(--acc)}
+.side-foot{margin-top:auto;padding-top:16px;font-size:12px;color:var(--mute);padding-left:12px}
+main{padding:clamp(16px,2.5vw,28px);width:100%}
+.page[hidden]{display:none}.page{animation:in .45s ease both}@keyframes in{from{opacity:0;transform:translateY(10px)}}
+.eyebrow{font-weight:600;color:var(--acc);margin-bottom:10px;font-size:14px}
+.sub{color:var(--mute);max-width:66ch;margin:12px 0 28px;font-size:17px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:20px;backdrop-filter:blur(10px)}
+.card h3{margin-bottom:12px}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:16px}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+.note{font-size:13px;color:var(--mute)}
+/* hero */
+.hero{position:relative;border-radius:28px;overflow:hidden;border:1px solid var(--line);background:radial-gradient(80% 90% at 75% 30%,#1b0b2a,#050208 70%);padding:clamp(22px,4vw,48px);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:24px;align-items:center;margin-bottom:18px}
+.hero h1{font-size:clamp(38px,6.4vw,76px);font-weight:800;line-height:.98}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--rose),var(--gold) 40%,var(--teal) 70%,var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mute);max-width:52ch;font-size:17px;margin:16px 0 0}
+.sky{position:relative;aspect-ratio:1;width:100%;max-width:420px;margin:0 auto}.sky svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.tw{animation:tw 3s ease-in-out infinite alternate}@keyframes tw{from{opacity:.35}}
+.wave{display:flex;gap:4px;align-items:center;height:48px;margin-top:22px}.wave i{flex:1;max-width:6px;border-radius:3px;background:linear-gradient(var(--rose),var(--violet));animation:wv 1.2s ease-in-out infinite alternate}
+@keyframes wv{from{transform:scaleY(.2)}}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px}
+.stat b{display:block;font:800 clamp(22px,3vw,34px) Unbounded,sans-serif;white-space:nowrap}.stat span{font-size:13px;color:var(--mute)}
+.mission{background:linear-gradient(120deg,#ff4f8726,#9d7bff26 50%,#2fd3bd26);border:1px solid var(--line);border-radius:22px;padding:20px}
+.mission small{font-weight:700;color:var(--gold)}.mission h3{margin:6px 0}
+.quick{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.qbtn,.btn{min-height:40px;padding:0 15px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font:600 13px Inter,sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap}
+.qbtn:hover,.btn:hover{background:#ffffff22}.btn.pri{background:var(--acc);border-color:var(--acc);color:#0a0408}
+/* bars */
+.bar{display:grid;grid-template-columns:9em minmax(0,1fr) 5em;gap:10px;align-items:center;margin:11px 0;font-size:15px}
+.track{height:10px;background:#ffffff12;border-radius:5px;overflow:hidden}.fill{height:100%;border-radius:5px;transform-origin:left;animation:grow 1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes grow{from{transform:scaleX(0)}}
+.bar span:last-child{text-align:right;color:var(--mute);white-space:nowrap}
+/* identity */
+.ident{border-radius:28px;padding:clamp(22px,4vw,44px);background:conic-gradient(from 210deg at 85% 20%,#ff4f8740,#9d7bff40,#2fd3bd30,#ffbe3d40,#ff4f8740),#0b0610;border:1px solid var(--line);margin-bottom:18px}
+.ident h2{font-size:clamp(34px,6vw,64px)}.ident p{max-width:60ch;color:#e6dbe2;font-size:17px}
+.trait{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:12px}
+.tcard{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px}
+.tcard b{display:block;margin-bottom:4px}.tcard p{margin:0;color:var(--mute);font-size:14px}
+.dots{display:flex;gap:4px;margin:8px 0}.dots i{width:22px;height:6px;border-radius:3px;background:#ffffff1c}.dots i.on{background:var(--c)}
+/* covers */
+.shelf{margin:0 0 34px}.shelf>h3{margin-bottom:4px}.shelf>p{color:var(--mute);margin:0 0 14px;font-size:15px;max-width:70ch}
+.row{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 14px;scrollbar-width:thin}
+.row>.cd{scroll-snap-align:start;flex:0 0 clamp(160px,19vw,200px)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,180px),1fr));gap:24px 16px}
+.cd{display:flex;flex-direction:column;gap:6px}
+.cover{position:relative;display:block;aspect-ratio:1;border-radius:16px;overflow:hidden;text-decoration:none;box-shadow:0 18px 36px -18px #000;transition:transform .25s}
+.cover:hover{transform:translateY(-4px) scale(1.02)}
+.cover i{position:absolute;inset:0}
+.cover .lbl{position:absolute;left:11px;right:11px;bottom:10px;font:800 clamp(15px,1.6vw,19px)/1.05 Unbounded,sans-serif;color:#fff;text-shadow:0 2px 12px #0009;overflow-wrap:anywhere}
+.cover .tag{position:absolute;top:10px;left:10px;font-size:11px;font-weight:700;color:#fff;background:#0006;border-radius:999px;padding:3px 8px;backdrop-filter:blur(6px)}
+.cover .match{position:absolute;top:10px;right:10px;font:800 12px Unbounded,sans-serif;color:#0a0408;background:#fff;border-radius:999px;padding:4px 8px}
+.ct{font-weight:600;line-height:1.25}.ca{color:var(--mute);font-size:14px;line-height:1.25}
+.why{font-size:13px;color:var(--mute);line-height:1.4}.why b{color:var(--ink);font-weight:600}
+.acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:2px}
+.mini{min-height:32px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:600 12px Inter,sans-serif;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap}
+select.rate{min-height:32px;max-width:100%;padding:0 8px;border-radius:999px;border:1px solid var(--line);background:#16101a;color:var(--ink);font:600 12px Inter,sans-serif}
+select.rate.set{border-color:var(--teal);color:var(--teal)}
+/* lab */
+.lab{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:18px;margin-bottom:26px}
+.dial{font:800 clamp(48px,8vw,88px)/1 Unbounded,sans-serif;background:linear-gradient(90deg,var(--teal),var(--violet),var(--rose));-webkit-background-clip:text;background-clip:text;color:transparent}
+input[type=range]{width:100%;accent-color:var(--violet);height:44px}
+.ends{display:flex;justify-content:space-between;font-size:13px;color:var(--mute)}
+.mixbar{display:flex;height:16px;border-radius:8px;overflow:hidden;margin:14px 0 6px}.mixbar i{transition:width .3s}
+/* universe */
+.uni{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.65fr);gap:18px}
+.map{position:relative;aspect-ratio:1.25;border-radius:24px;border:1px solid var(--line);background:radial-gradient(70% 70% at 50% 50%,#140a1f,#040205);overflow:hidden}
+.map svg{position:absolute;inset:0;width:100%;height:100%}
+.node{cursor:pointer}.node:focus-visible circle{stroke:#fff;stroke-width:3}
+.node text{font:600 17px Inter,sans-serif;fill:#e9dfe6;pointer-events:none}
+.edge{stroke:#ffffff22;stroke-width:1}.edge.hot{stroke:var(--acc);stroke-width:2;stroke-opacity:.9}
+.spot h3{font-size:clamp(24px,3vw,32px);font-weight:800;margin:6px 0 4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{min-height:32px;padding:0 11px;border-radius:999px;background:var(--panel);border:1px solid var(--line);display:inline-flex;align-items:center;text-decoration:none;font-size:13px;cursor:pointer;color:var(--ink);font-family:Inter,sans-serif}
+.chip:hover{background:var(--panel2)}
+.lbl2{font-size:12px;font-weight:700;color:var(--mute);margin:16px 0 8px}
+/* rooms */
+.rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:16px;margin-bottom:26px}
+.room{position:relative;min-height:180px;border-radius:22px;overflow:hidden;border:1px solid var(--line);padding:18px;display:flex;flex-direction:column;justify-content:flex-end;cursor:pointer;text-align:left;color:#fff;font:inherit;transition:transform .25s}
+.room:hover{transform:translateY(-3px)}.room[aria-pressed=true]{outline:3px solid #fff;outline-offset:2px}
+.room b{font:800 22px Unbounded,sans-serif;position:relative}.room span{position:relative;font-size:14px;opacity:.9}
+/* library */
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+input[type=search],textarea.ask{font:16px Inter,sans-serif;background:#ffffff0d;color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+input[type=search]{min-height:46px;flex:1 1 260px}
+.filt{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);font:600 13px Inter,sans-serif;cursor:pointer}
+.filt[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);font-size:15px}th{font-size:12px;color:var(--mute);font-weight:700}
+td .mini{margin-right:4px}.gdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+/* dj */
+.dj{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.djbox{display:flex;gap:10px;flex-wrap:wrap}.djbox textarea{flex:1 1 300px;min-height:56px;resize:vertical}
+.djout{min-height:80px}.djmsg{font-size:17px;margin:0 0 14px;max-width:70ch}
+.orb{width:64px;height:64px;border-radius:50%;background:conic-gradient(var(--rose),var(--violet),var(--teal),var(--gold),var(--rose));animation:spin 6s linear infinite;box-shadow:0 0 40px #9d7bff66;flex:none}
+.orb.busy{animation-duration:1s}@keyframes spin{to{transform:rotate(360deg)}}
+/* weekly */
+.liner{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);border-radius:26px;overflow:hidden;border:1px solid var(--line);margin-bottom:18px}
+.lsleeve{position:relative;min-height:320px;background:conic-gradient(from 200deg at 30% 70%,var(--rose),var(--violet),var(--teal),var(--gold),var(--rose));display:flex;flex-direction:column;justify-content:space-between;padding:22px;color:#0a0408}
+.lsleeve:after{content:"";position:absolute;inset:0;background:repeating-radial-gradient(circle at 30% 70%,#0000 0 6px,#00000012 6px 7px)}
+.lsleeve b{font:800 clamp(56px,9vw,110px)/.9 Unbounded,sans-serif;position:relative;z-index:1}.lsleeve span{font-weight:700;position:relative;z-index:1}
+.ltext{background:#0d0811;padding:clamp(20px,3vw,34px)}.ltext h3{font-size:clamp(22px,3vw,30px);font-weight:800;margin-bottom:12px}.ltext p{margin:0 0 14px;max-width:62ch}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.pill{padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;background:#ffffff10}
+.fig{position:relative;min-height:240px}.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+
+.collapse{position:absolute;top:24px;right:12px;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+aside{transition:width .3s}.app{transition:grid-template-columns .3s}
+.app.mini{grid-template-columns:76px minmax(0,1fr) 300px}
+.app.mini aside:not(.now){padding:22px 10px}.app.mini .brand div,.app.mini .slbl,.app.mini .side-foot,.app.mini .nb span{display:none}
+.app.mini .brand{margin:0 0 60px 6px}.app.mini .collapse{right:auto;left:20px;top:64px}.app.mini .collapse svg{transform:rotate(180deg)}
+.app.mini .nb{justify-content:center;padding:0}.app.mini .nb i{width:10px;height:10px}
+.gl{font-size:11px;color:var(--mute);margin:14px 12px 4px;font-weight:700}.app.mini .gl{visibility:hidden;height:4px;margin:6px 0}
+.homegrid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,.9fr);gap:16px;margin-bottom:26px}.homegrid .banner{margin:0}
+.roul{height:100%;border-radius:26px;border:1px solid var(--line);padding:18px;background:linear-gradient(160deg,#ffbe3d22,#ff4f8722 60%,#0000);display:flex;flex-direction:column;gap:6px}
+.roul small{font-weight:700;color:var(--gold)}.rart{flex:1;min-height:120px;border-radius:18px;background:repeating-conic-gradient(#ffbe3d 0 10deg,#ff4f87 10deg 20deg,#9d7bff 20deg 30deg,#2fd3bd 30deg 40deg);transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+.roul b{font:800 18px Unbounded,sans-serif}.roul span{color:var(--mute);font-size:14px}
+.bigrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:18px;margin-bottom:26px}
+.bigrow .cd:first-child{grid-column:span 2;grid-row:span 2}.bigrow .cd:first-child .lbl{font-size:clamp(22px,3vw,36px)}
+.news-teaser{background:#f3ece2;color:#1a1410;border:0}.news-teaser .note{color:#5a4f45}.news-teaser h3{font-family:Georgia,serif;font-size:24px;color:#1a1410}.news-teaser .qbtn{background:#1a1410;color:#f3ece2;border:0}
+.big{font:800 clamp(40px,6vw,64px)/1 Unbounded,sans-serif;background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent;margin:6px 0}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:12px}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px}.q b{display:block;color:var(--acc);margin-bottom:6px}.q p{margin:0;font-size:15px}
+.modes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.mode{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);font:600 13px Inter,sans-serif;cursor:pointer;text-align:left}
+.mode[aria-checked=true]{background:var(--acc);color:#0a0408;border-color:var(--acc)}
+.modedesc{font-size:13px;color:var(--mute);margin:-4px 0 12px}
+.fsel{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.fsel label{flex:1 1 200px;display:grid;gap:6px;font-size:13px;font-weight:600;color:var(--mute)}
+.fsel select{min-height:48px;border-radius:14px;border:1px solid var(--line);background:#16101a;color:var(--ink);font:600 15px Inter,sans-serif;padding:0 12px}
+.fx{font:800 28px Unbounded,sans-serif;color:var(--acc);align-self:end;padding-bottom:6px}
+.path{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0}
+.step{display:grid;grid-template-columns:64px minmax(0,1fr);gap:16px;position:relative;padding-bottom:22px}
+.step:before{content:"";position:absolute;left:31px;top:70px;bottom:0;width:2px;background:linear-gradient(var(--acc),#0000)}.step:last-child:before{display:none}
+.step .sa{width:64px;height:64px;border-radius:16px}.step small{font-weight:700;color:var(--acc)}.step b{display:block;font:800 18px Unbounded,sans-serif;margin:2px 0}.step p{margin:4px 0 8px;color:var(--mute);font-size:14px}
+.blind{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:18px;align-items:center}
+.bcover{aspect-ratio:1;border-radius:26px;display:grid;place-items:center;font:800 clamp(60px,10vw,120px) Unbounded,sans-serif;color:#ffffff30;background:radial-gradient(circle at 50% 40%,#ffffff12,#0000 60%),repeating-radial-gradient(circle,#0000 0 10px,#ffffff08 10px 11px),#0d0a10;border:1px solid var(--line);transition:all .6s}
+.bopts{display:grid;gap:8px;margin-top:14px}.bopts button{min-height:46px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:600 15px Inter,sans-serif;cursor:pointer;text-align:left;padding:0 16px}.bopts button:hover{background:var(--panel2)}
+.hallgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:16px}
+.battle{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}.battle button{border:0;background:none;color:var(--ink);cursor:pointer;text-align:left;padding:0;font:inherit}
+.battle .bc{aspect-ratio:1;border-radius:16px;margin-bottom:8px;transition:transform .2s}.battle button:hover .bc{transform:scale(1.03)}.vs{font:800 18px Unbounded,sans-serif;color:var(--acc)}
+.tier{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;align-items:center;margin:6px 0}.tier b{height:40px;border-radius:10px;display:grid;place-items:center;font:800 15px Unbounded,sans-serif;color:#0a0408}
+.tier .chips{min-height:40px;align-items:center}.tier .empty{color:var(--mute);font-size:13px}
+.rk{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.ppgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:14px}
+.stamp{position:relative;border-radius:20px;padding:16px;border:1px solid var(--line);background:var(--panel);overflow:hidden}
+.stamp .st{position:absolute;right:12px;top:12px;width:64px;height:64px;border-radius:50%;border:3px dashed var(--c);display:grid;place-items:center;font:800 11px Unbounded,sans-serif;color:var(--c);transform:rotate(-14deg);text-align:center;line-height:1.1}
+.stamp.locked .st{opacity:.25;filter:grayscale(1)}.stamp b{display:block;font:600 17px Unbounded,sans-serif;margin-bottom:4px;padding-right:70px}.stamp p{margin:0 0 10px;color:var(--mute);font-size:13px;padding-right:70px}
+.paper{background:#f3ece2;color:#1a1410;border-radius:22px;padding:clamp(18px,3vw,40px)}
+.mast{text-align:center;border-bottom:3px double #1a1410;padding-bottom:12px;margin-bottom:18px;display:grid;gap:4px;font-size:13px;color:#5a4f45}
+.mast h2{font-family:Georgia,'Times New Roman',serif;font-size:clamp(34px,6vw,64px);color:#1a1410;font-weight:700;letter-spacing:-.02em}
+.lead{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:22px;border-bottom:1px solid #1a141033;padding-bottom:18px;margin-bottom:18px}
+.lead h3,.col h4{font-family:Georgia,serif;color:#1a1410}.lead h3{font-size:clamp(26px,4vw,40px);font-weight:700;margin:6px 0 10px}
+.paper p{font-family:Georgia,serif;font-size:16px;line-height:1.6;margin:0 0 10px}.paper .kick2{font:700 12px Inter,sans-serif;color:#b3123f}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:22px}.col h4{font-size:21px;margin:4px 0 8px}
+.paper .chip{background:#1a14100d;border-color:#1a141026;color:#1a1410}.paper .note{color:#5a4f45}
+.leadart{border-radius:14px;min-height:200px}
+@media(max-width:820px){.homegrid,.blind,.hallgrid,.lead{grid-template-columns:minmax(0,1fr)}.bigrow .cd:first-child{grid-column:auto;grid-row:auto}.tall{min-height:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media(max-width:1280px){.app,.app.mini{grid-template-columns:220px minmax(0,1fr)}.app.mini{grid-template-columns:76px minmax(0,1fr)}.now{display:none}}
+@media(max-width:1000px){.app,.app.mini{grid-template-columns:minmax(0,1fr);padding:0 0 100px;gap:0}aside:not(.now){position:sticky;top:0;z-index:20;height:auto;flex-direction:row;align-items:center;padding:10px 12px;border:0;border-bottom:1px solid var(--line);border-radius:0;gap:12px}
+.brand{margin:0}.brand small,.side-foot,.slbl,#sroom,.collapse,.gl{display:none}.nav{flex-direction:row;overflow-x:auto;scrollbar-width:none}.nb{flex:none;min-height:40px}.nb i{display:none}.mainp{border:0;border-radius:0;background:transparent}.ovgrid{grid-template-columns:minmax(0,1fr)}
+.player{left:8px;right:8px;bottom:8px;grid-template-columns:minmax(0,1fr) auto;padding:8px 10px}.pl-r,.pl-note,#prev{display:none}.avatar{display:none}}
+@media(max-width:820px){.hero,.lab,.uni,.liner{grid-template-columns:minmax(0,1fr)}.sky{max-width:280px}.lsleeve{min-height:180px}}
+@media(max-width:600px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.bar{grid-template-columns:7em minmax(0,1fr) 4.4em;font-size:14px}
+.ltable thead{display:none}.ltable tr{display:grid;grid-template-columns:minmax(0,1fr);padding:10px 0;border-bottom:1px solid var(--line)}.ltable td{border:0;padding:2px 0}}
+.pplay{border:0;cursor:pointer}.prog{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--mute);min-width:0;flex:1}
+.pbar{flex:1;min-width:80px;width:clamp(120px,22vw,320px);height:6px;border-radius:3px;background:#ffffff1c;cursor:pointer;position:relative}.pbar i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:3px;background:linear-gradient(90deg,var(--teal),var(--violet))}
+.full iframe{width:100%;height:175px;border:0;border-radius:14px;margin-top:10px}.full .note{display:block;margin-top:6px}
+@media(max-width:1000px){.prog{display:none}}
+</style></head><body>
+<div class="glow" id="glow"></div>
+<div class="app">
+<aside>
+  <div class="brand"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path d="M8 6 L15 3 L22 6 M8 6 L10 24 M22 6 L20 24 M10 24 L20 24 M15 3 L15 24" stroke="#ff4f87" stroke-width="1.5" fill="none"/><circle cx="15" cy="3" r="2.6" fill="#fff"/><circle cx="8" cy="6" r="2" fill="#9d7bff"/><circle cx="22" cy="6" r="2" fill="#2fd3bd"/><circle cx="10" cy="24" r="2" fill="#ffbe3d"/><circle cx="20" cy="24" r="2" fill="#ff4f87"/></svg><div><b>Lyra</b><small>Music intelligence</small></div></div>
+  <button class="collapse" id="collapse" type="button" aria-label="Collapse sidebar" aria-expanded="true"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" fill="none"/></svg></button>
+  <nav class="nav" id="nav" aria-label="Lyra sections"></nav>
+  <div class="slbl">Your rooms</div>
+  <div class="nav" id="sroom"></div>
+  <div class="side-foot">Understand your sound.<br>Discover your next obsession.</div>
+</aside>
+<main class="mainp">
+<div class="topbar"><form id="sform" class="sbox" role="search"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2"/></svg><input type="search" id="gsearch" placeholder="Search any song or artist" aria-label="Search"></form><div class="avatar" aria-hidden="true">h</div></div>
+<div class="moods" id="moods"></div>
+
+<section class="page" data-grp="Listen" id="overview" data-t="Home" data-c="#2fd3bd">
+  <div class="homegrid">
+    <div class="banner">
+      <svg class="bwave" viewBox="0 0 800 300" preserveAspectRatio="none" aria-hidden="true" id="bwave"></svg>
+      <div class="bin"><div class="eyebrow" style="color:#fff">For you</div><h1>Feel your <em>sound</em></h1><p>Fresh picks matched to all four of your worlds: R&amp;B, melodic trap, Afrobeats and UK rap.</p>
+      <div class="quick"><button class="btn pri" type="button" id="playmix">Play your mix</button><span class="note" style="color:#fff;opacity:.85" id="mixinfo"></span></div></div>
+    </div>
+    <div class="tall">
+      <div class="roul"><small>Music roulette</small><div class="rart" id="rart"></div><b id="rt">Spin for a song</b><span id="ra">Anything from your four worlds</span><div class="quick"><button class="btn pri" id="spin" type="button">Spin</button><button class="qbtn" data-go="blind" type="button">Blind mode</button></div></div>
+    </div>
+  </div>
+  <div class="sechead"><h3>Top artists</h3><button class="link" data-go="universe" type="button">See all</button></div>
+  <div class="arow" id="toparts"></div>
+  <div class="sechead"><h3>Big picks for you</h3><button class="link" data-go="discovery" type="button">Explore all</button></div>
+  <div class="bigrow" id="bigpicks"></div>
+  <div class="ovgrid">
+    <div class="card"><div class="sechead" style="margin:0 0 6px"><h3>Daily mix</h3><button class="link" data-go="discovery" type="button">Explore all</button></div><div id="daily"></div></div>
+    <div style="display:grid;gap:14px;align-content:start">
+      <div class="mission"><small>This week's discovery mission</small><h3>Cross a bridge between your worlds</h3><p class="note" style="font-size:15px;color:#eee">Songs that connect your sides, like Location by Dave and Burna Boy, or Free Mind by Tems.</p><div class="quick"><button class="qbtn" data-go="fusion" type="button">Fusion Lab</button><button class="qbtn" data-go="rabbit" type="button">Rabbit hole</button></div></div>
+      <div class="card news-teaser"><small class="note">The Resonance Times</small><h3 style="margin:6px 0">Is alté your next era?</h3><p class="note" style="font-size:14px">Today's edition of your personal music paper.</p><button class="qbtn" data-go="times" type="button">Read it</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" data-grp="Intelligence" id="dna" data-t="Music DNA" data-c="#9d7bff" hidden>
+  <div class="ident"><div class="eyebrow">Musical identity</div><h2>The Soulful Melodist</h2><p>You follow melody wherever it goes: a 90s R&amp;B ballad, an Atlanta trap song, a Lagos love song or an underground London track. Genre is secondary. What you hold on to is a voice carrying real feeling over a deep, rhythmic low end.</p></div>
+  <h3 style="margin:26px 0 12px">Why you love what you love</h3>
+  <div class="trait" id="traits"></div>
+  <div class="g2" style="margin-top:18px">
+    <div class="card"><h3>Your worlds</h3><div id="ovbars"></div><p class="note">Songs named in your profile, per world.</p></div>
+    <div class="card"><h3>Era fingerprint</h3><div id="eras"></div></div>
+    <div class="card"><h3>How each world feels to you</h3><div id="worldfeel"></div></div>
+  </div>
+  <h3 style="margin:30px 0 12px">Taste fingerprint</h3>
+  <div class="g2" id="finger"></div>
+  <h3 style="margin:30px 0 12px">Future favourite predictor</h3>
+  <p class="note" style="margin:-6px 0 12px;font-size:15px">Recommendations ranked by how likely they are to become long-term favourites, based on your fingerprint and ratings.</p>
+  <div class="grid" id="future"></div>
+  <p class="note" style="margin-top:14px">An estimated profile, based on the songs in your collection rather than measured audio data or play counts. Your Love it / Not for me reactions will sharpen it over time.</p>
+</section>
+
+<section class="page" data-grp="Listen" id="search" data-t="Search" data-c="#2fd3bd" hidden>
+  <div class="eyebrow">Search</div><h2 id="sh">Search any song</h2>
+  <p class="sub" id="ss">Type any song, artist or album in the search bar. Tap a result to play it.</p>
+  <div class="grid" id="sres"></div>
+  <h3 style="margin:30px 0 12px" id="slibh" hidden>In your library</h3><div class="grid" id="slib"></div>
+</section>
+<section class="page" data-grp="Listen" id="discovery" data-t="Discovery" data-c="#2fd3bd" hidden>
+  <div class="eyebrow">Discovery engine</div><h2>Find your next favourite</h2>
+  <p class="sub">Six engines, each with a different job. Every pick says why it was chosen and gives an estimated match. Rate songs and the next batch learns from you.</p>
+  <div id="disc"></div>
+</section>
+
+<section class="page" data-grp="Labs" id="lab" data-t="Experimental Lab" data-c="#9d7bff" hidden>
+  <div class="eyebrow">Experimental lab</div><h2>Turn up the adventure</h2>
+  <p class="sub">Choose how far from home to go. Every song stays linked to something you already love, so even the wild picks have a reason.</p>
+  <div class="lab">
+    <div class="card"><div class="note">Discovery intensity</div><div class="dial" id="dial">35%</div>
+      <input type="range" id="intensity" min="0" max="100" step="5" value="35" aria-label="Discovery intensity">
+      <div class="ends"><span>Familiar</span><span>Unpredictable</span></div>
+      <div class="mixbar"><i id="mixF" style="background:var(--teal)"></i><i id="mixN" style="background:var(--rose)"></i></div>
+      <div class="ends"><span id="famL">Familiar 65%</span><span id="newL">New 35%</span></div></div>
+    <div class="card"><h3 id="labTitle">Controlled exploration</h3><p id="labDesc" style="color:var(--mute);margin:0"></p></div>
+  </div>
+  <div class="grid" id="labgrid"></div>
+</section>
+
+<section class="page" data-grp="Collection" id="universe" data-t="Universe" data-c="#ffbe3d" hidden>
+  <div class="eyebrow">Your musical universe</div><h2>Follow the connections</h2>
+  <p class="sub">Your four worlds as one map. Tap any artist to see how they connect, what you haven't heard yet and where to go next.</p>
+  <div class="uni"><div class="map"><svg id="map" viewBox="-110 -10 1220 820" role="group" aria-label="Map of your artists"></svg></div><div class="card spot" id="spot"></div></div>
+</section>
+
+<section class="page" data-grp="Listen" id="rooms" data-t="Listening Rooms" data-c="#ff4f87" hidden>
+  <div class="eyebrow">Listening rooms</div><h2>Music for the moment</h2>
+  <p class="sub">Built around moods and moments rather than genres. Each room mixes your songs with new ones and changes as you rate them.</p>
+  <div class="rooms" id="roomgrid"></div><div id="roomview"></div>
+</section>
+
+<section class="page" data-grp="Listen" id="dj" data-t="AI DJ" data-c="#9d7bff" hidden>
+  <div class="eyebrow">Lyra DJ</div><h2>Just ask</h2>
+  <p class="sub">Talk to Lyra in your own words. It knows your library and taste, builds a set and explains each pick. Tap a song to play it on Apple Music or YouTube Music.</p>
+  <div class="dj">
+    <div class="card"><div style="display:flex;gap:16px;align-items:center;margin-bottom:14px"><div class="orb" id="orb"></div><div><b>What do you want to hear?</b><div class="note" id="djstate">Lyra is ready.</div></div></div>
+      <div class="modes" id="modes" role="radiogroup" aria-label="Intelligence mode"></div>
+      <form class="djbox" id="djform"><textarea class="ask" id="djq" aria-label="Ask Lyra" placeholder="Play something like Mary J. Blige but from a modern artist"></textarea><button class="btn pri" type="submit" style="min-height:56px">Build my set</button></form>
+      <div class="quick" id="djchips"></div></div>
+    <div class="djout" id="djout"></div>
+  </div>
+</section>
+
+<section class="page" data-grp="Collection" id="vault" data-t="Unreleased Vault" data-c="#2fd3bd" hidden>
+  <div class="eyebrow">Unreleased vault</div><h2>The songs streaming doesn't have</h2>
+  <p class="sub">Leaks, demos, snippets and remixes live on YouTube. Tap an artist to search YouTube Music for their unreleased and live material. When your YouTube history arrives, the vault fills with the exact songs you already play.</p>
+  <div class="g3" id="vaultgrid"></div>
+</section>
+
+<section class="page" data-grp="Collection" id="library" data-t="Library" data-c="#ffbe3d" hidden>
+  <div class="eyebrow">Music library</div><h2>Your collection</h2>
+  <p class="sub" id="libsub"></p>
+  <div class="tools"><input type="search" id="q" placeholder="Search songs or artists" aria-label="Search your library"><div id="gfilt" style="display:flex;gap:6px;flex-wrap:wrap"></div></div>
+  <table class="ltable"><thead><tr><th>Song</th><th>Artist</th><th>World</th><th>Play on</th></tr></thead><tbody id="lib"></tbody></table>
+</section>
+
+<section class="page" data-grp="Intelligence" id="replay" data-t="Weekly Replay" data-c="#ffbe3d" hidden>
+  <div class="eyebrow">Weekly replay</div><h2>Your story, week by week</h2>
+  <p class="sub">A new chapter every Sunday at 5:33 PM. It covers what rose, what faded, your new discoveries and a mission for next week. Every week gets its own look.</p>
+  <article class="liner">
+    <div class="lsleeve"><span>Week 1 · 25 Nov 2026</span><b>01</b><span>The baseline</span></div>
+    <div class="ltext">
+      <h3>Four worlds, one heartbeat</h3>
+      <p>Your collection doesn't belong to one scene. It's split between 90s and 2000s R&amp;B, Atlanta melodic trap, Nigerian Afrobeats and underground UK rap, and each one holds its own.</p>
+      <p>What links them is feeling. Thug Cry and Make It Out sit as easily next to Be Without You as Essence sits next to Real Roses. Pain turned into melody, love turned into rhythm.</p>
+      <p>The most personal corner is your UK side. Beezo, Trezz0, Lay8om and Loyal DTM aren't chart picks. You went digging for them, and that instinct is exactly what Lyra builds on.</p>
+      <div class="pills"><span class="pill" style="color:var(--rose)">Mood: late-night, nostalgic</span><span class="pill" style="color:var(--gold)">Most open door: alté and amapiano</span><span class="pill" style="color:var(--teal)">Next bridge: UK R&amp;B and garage</span></div>
+    </div>
+  </article>
+  <div class="qgrid" id="questions"></div>
+  <div class="g3" style="margin:16px 0">
+    <div class="card"><h3>How well Lyra knows you</h3><div class="big" id="acc">–</div><p class="note" id="accn">Rate recommended songs to measure this.</p></div>
+    <div class="card"><h3>Obsession detector</h3><div id="obs" class="note">No obsession detected yet. Love a few songs by the same artist and it shows up here.</div></div>
+    <div class="card"><h3>Fatigue detector</h3><div id="fat" class="note">Nothing wearing thin yet. Songs you mark "another chance later" or "only in moods" show up here.</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><h3>Taste evolution</h3><div class="fig"><svg id="evo"></svg></div><p class="note">One point so far. The line grows every week as your listening comes in.</p></div>
+    <div class="card"><h3>Coming in each chapter</h3><ul style="margin:0;padding-left:18px;color:var(--mute)"><li>Artist, song and album of the week</li><li>Biggest shifts between your four worlds</li><li>New favourite discoveries and your diversity score</li><li>A short story of your week and next week's mission</li></ul><p class="note">Feed it by rating songs here, or by pasting your recently played list into the chat.</p></div>
+  </div>
+</section>
+
+<section class="page" data-grp="Labs" id="fusion" data-t="Fusion Lab" data-c="#ffbe3d" hidden>
+  <div class="eyebrow">Fusion lab</div><h2>Create a new sound</h2>
+  <p class="sub">Blend two influences and Lyra finds real, existing songs that live in the space between them.</p>
+  <div class="fuse card">
+    <div class="fsel"><label>Influence A<select id="fa"></select></label><div class="fx">×</div><label>Influence B<select id="fb"></select></label></div>
+    <input type="range" id="fmix" min="0" max="100" step="10" value="60" aria-label="Blend between influence A and B">
+    <div class="ends"><span id="fal">60% A</span><span id="fbl">40% B</span></div>
+    <div class="fsel" style="margin-top:12px"><label>Mood<select id="fmood"><option>Any mood</option><option>Late-night</option><option>Romantic</option><option>High energy</option><option>Emotional</option><option>Chill</option></select></label><button class="btn pri" id="fgo" type="button" style="align-self:end;min-height:48px">Discover fusion tracks</button></div>
+    <div class="note" id="fstate" style="margin-top:10px"></div>
+  </div>
+  <div class="grid" id="fout" style="margin-top:20px"></div>
+</section>
+
+<section class="page" data-grp="Labs" id="rabbit" data-t="Rabbit Holes" data-c="#9d7bff" hidden>
+  <div class="eyebrow">Musical rabbit holes</div><h2>Start familiar. End somewhere new.</h2>
+  <p class="sub">Pick a song you love. Lyra builds a five-step bridge into unfamiliar music, explaining each jump.</p>
+  <div class="card fsel" style="margin-bottom:20px"><label style="flex:2">Starting song<select id="rstart"></select></label><button class="btn pri" id="rgo" type="button" style="align-self:end;min-height:48px">Go down the hole</button></div>
+  <div class="note" id="rstate"></div>
+  <ol class="path" id="rpath"></ol>
+</section>
+
+<section class="page" data-grp="Labs" id="blind" data-t="Blind Discovery" data-c="#2fd3bd" hidden>
+  <div class="eyebrow">Blind discovery</div><h2>Judge the sound, not the name</h2>
+  <p class="sub">Artist, genre and artwork stay hidden until you rate. Your music app will show the name when it plays, so try not to look at the screen until you've decided.</p>
+  <div class="blind" id="blindcard"></div>
+</section>
+
+<section class="page" data-grp="Collection" id="hall" data-t="Hall of Fame" data-c="#ffbe3d" hidden>
+  <div class="eyebrow">Hall of fame</div><h2>Your all-time greats</h2>
+  <p class="sub">Rank your songs from S+ to D. Song battles help settle the close calls. Songs earn their place from your rankings, not popularity.</p>
+  <div class="hallgrid">
+    <div class="card"><h3>Song battle</h3><p class="note" style="margin:0 0 12px">Which one do you love more?</p><div class="battle" id="battle"></div></div>
+    <div class="card"><h3>Your tier board</h3><div id="tiers"></div></div>
+  </div>
+  <div class="g3" style="margin-top:16px" id="halls"></div>
+  <h3 style="margin:28px 0 10px">Rank your library</h3>
+  <div class="tools"><input type="search" id="hq" placeholder="Find a song to rank" aria-label="Find a song to rank"></div>
+  <div id="ranklist"></div>
+</section>
+
+<section class="page" data-grp="Collection" id="passport" data-t="Music Passport" data-c="#2fd3bd" hidden>
+  <div class="eyebrow">Music passport</div><h2>Where your music has taken you</h2>
+  <p class="sub">Each region fills up as your library and ratings grow. Rate a song from a new region to collect its stamp.</p>
+  <div class="ppgrid" id="pp"></div>
+  <div class="mission" style="margin-top:18px" id="trip"></div>
+</section>
+
+<section class="page" data-grp="Intelligence" id="times" data-t="Resonance Times" data-c="#ff4f87" hidden>
+  <div class="paper">
+    <div class="mast"><span id="pdate"></span><h2>The Resonance Times</h2><span>Your personal music paper</span></div>
+    <div id="paper"></div>
+    <div class="quick" style="justify-content:center;margin-top:18px"><button class="btn pri" id="pgo" type="button">Print a new edition</button><span class="note" id="pstate"></span></div>
+    <p class="note" style="text-align:center">Features and music history written for you. Lyra can't read today's news, so check new releases on Apple Music.</p>
+  </div>
+</section>
+
+<div class="card" style="margin-top:34px;display:flex;flex-wrap:wrap;gap:12px;align-items:center"><span class="note" id="savestate" style="flex:1 1 260px">Your ratings are saved and shape your weekly story and next recommendations.</span><button class="btn" id="copy" type="button">Copy my ratings</button></div>
+<textarea id="fbtext" class="ask" hidden readonly aria-label="Your ratings" style="width:100%;margin-top:10px;min-height:100px"></textarea>
+<p class="note" style="margin-top:20px">Recommendations and match scores are Lyra's estimates from your profile. Your own songs come from the playlist analysis you shared and may have small spelling errors.</p>
+</main>
+<aside class="now" id="now" aria-label="Now playing">
+  <div class="nlbl"><span class="eqs"><i></i><i></i><i></i></span>Now playing</div>
+  <div class="nart" id="nart2"></div>
+  <div class="ntitle" id="ntitle">Pick any song</div><div class="nartist" id="nartist">Tap a cover anywhere in Lyra</div>
+  <div class="acts" id="nacts" style="margin:10px 0 4px"></div>
+  <div id="full" class="full"></div>
+  <div class="nlbl" style="margin-top:18px">Up next</div>
+  <ol class="queue" id="queue"></ol>
+</aside>
+</div>
+<div class="player" id="player">
+  <div class="pl-l"><div class="pl-art" id="part"></div><div style="min-width:0"><div class="pl-t" id="pt">Lyra</div><div class="pl-a" id="pa">Your music, understood</div></div></div>
+  <div class="pl-c"><button class="pb" id="prev" type="button" aria-label="Previous song"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M6 5v14M19 5l-10 7 10 7z" fill="currentColor" stroke="currentColor" stroke-width="2"/></svg></button><button class="pplay" id="pplay" type="button" aria-label="Play"><svg id="picon" width="20" height="20" viewBox="0 0 14 14"><path d="M3 1.5v11l9-5.5z" fill="currentColor"/></svg></button><button class="pb" id="next" type="button" aria-label="Next song"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M18 5v14M5 5l10 7-10 7z" fill="currentColor" stroke="currentColor" stroke-width="2"/></svg></button><div class="prog"><span id="pcur">0:00</span><div class="pbar" id="pbar"><i id="pfill"></i></div><span id="pdur">0:30</span></div><audio id="aud" preload="none"></audio></div>
+  <div class="pl-r" id="pr"></div>
+</div>
+<script>
+{
+const like=[
+['Let\'s Get Married','Jagged Edge','rnb','Smooth 2000s harmonies, like Ginuwine and Usher'],
+['Cupid','112','rnb','90s slow jam in the Jodeci and Keith Sweat lane'],
+['Kissin\' You','Total','rnb','Bad Boy-era hip-hop soul, same world as Mary and Faith Evans'],
+['Love','Musiq Soulchild','rnb','Neo-soul like Jill Scott and D\'Angelo'],
+['So Into You','Tamia','rnb','Silky 90s R&B like Brandy and Monica'],
+['Foolish','Ashanti','rnb','2000s R&B over a hip-hop beat'],
+['Say Yes','Floetry','rnb','Spoken-word neo-soul next to Erykah Badu'],
+['Girls Need Love','Summer Walker','rnb','Modern Atlanta R&B with a 90s heart'],
+['Heartbreak Anniversary','Giveon','rnb','Deep-voiced, emotional, late-night'],
+['Dead Man Walking','Brent Faiyaz','rnb','Atmospheric R&B like your After Hours side'],
+['Heart on Ice','Rod Wave','trap','Emotional melodic rap like Thug Cry and Make It Out'],
+['2 Phones','Kevin Gates','trap','Southern street rap with a melody, like Moneybagg Yo'],
+['Ghetto Angels','NoCap','trap','Pain-filled melodic rap, YoungBoy and Lil Durk fans love him'],
+['Martin & Gina','Polo G','trap','Melodic, romantic street rap'],
+['Back in Blood','Pooh Shiesty ft. Lil Durk','trap','Memphis trap, same city as Moneybagg Yo'],
+['Ambition for Cash','Key Glock','trap','Hard Memphis bounce'],
+['Free Mind','Tems','afro','Soulful Nigerian vocals, connects your R&B and Afro sides'],
+['Peru','Fireboy DML','afro','Feel-good Afropop like Wizkid'],
+['Rush','Ayra Starr','afro','Smooth modern Afrobeats'],
+['Buga','Kizz Daniel ft. Tekno','afro','Features Tekno, who you already play'],
+['Soweto','Victony','afro','Mellow, romantic Afrobeats like Omah Lay'],
+['Location','Dave ft. Burna Boy','uk','UK rap meets Burna Boy, two of your worlds'],
+['Only You Freestyle','Headie One & Drake','uk','Moody UK drill with a melody'],
+['Netflix & Chill','Fredo','uk','Smooth, laid-back UK rap'],
+['Day in the Life','Central Cee','uk','Melodic UK flow, Trezz0 fans tend to like it']];
+const exp=[
+['No Ordinary Love','Sade','rnb','Be Without You','Quiet-storm soul, the late-night mood under all your R&B'],
+['Sweet Love','Anita Baker','rnb','Mary J. Blige','80s soul that shaped how Mary sings'],
+['Ain\'t No Way','Aretha Franklin','rnb','No More Drama','The gospel-soul root of Mary\'s big ballads'],
+['Afro Blue','Robert Glasper ft. Erykah Badu','rnb','On & On','Jazz meets neo-soul, with Erykah on vocals'],
+['Why Don\'t You','Cleo Sol','uk','Golden by Jill Scott','UK neo-soul, warm and slow'],
+['Be Honest','Jorja Smith ft. Burna Boy','uk','On the Low','UK R&B with Burna Boy, a bridge between your sides'],
+['Re-Rewind','Artful Dodger ft. Craig David','uk','Fill Me In','UK garage, where Craig David started'],
+['Water No Get Enemy','Fela Kuti','afro','Ye by Burna Boy','The original Afrobeat that Burna and Wizkid build on'],
+['Sad Girlz Luv Money','Amaarae','afro','Essence','Alté: Afro-pop that is softer and stranger'],
+['Water','Tyla','afro','Soundgasm','Amapiano-pop from South Africa'],
+['Superman','Black Coffee ft. Bucie','afro','Afro Wave, All Night','Deep Afro-house for the late-night side'],
+['Family','Popcaan','afro','Pana by Tekno','Dancehall, Afrobeats\' Caribbean cousin'],
+['You\'re the One','Kaytranada ft. Syd','rnb','Rock the Boat','R&B you can dance to, with Aaliyah\'s light touch'],
+['Thinkin Bout You','Frank Ocean','rnb','Ex-Factor','Raw-feeling, emotional alt R&B'],
+['Bad Habit','Steve Lacy','rnb','Brown Sugar','Funky, lo-fi soul with a D\'Angelo groove']];
+const cats=[
+['Late night R&B','Slow, smooth, lights off.','rnb',[['Be Without You','Mary J. Blige'],['One in a Million','Aaliyah'],['Untitled (How Does It Feel)','D\'Angelo'],['Differences','Ginuwine'],['Golden','Jill Scott'],['We Belong Together','Mariah Carey']],[['Cupid','112'],['No Ordinary Love','Sade']]],
+['90s throwback','Hip-hop soul and new jack swing.','rnb',[['Real Love','Mary J. Blige'],['I Wanna Be Down','Brandy'],['That\'s the Way Love Goes','Janet Jackson'],['Fantasy','Mariah Carey'],['Pony','Ginuwine'],['Say My Name','Destiny\'s Child']],[['Kissin\' You','Total'],['So Into You','Tamia']]],
+['Mary energy','Strong, heal-and-move-on anthems.','rnb',[['No More Drama','Mary J. Blige'],['Family Affair','Mary J. Blige'],['Irreplaceable','Beyoncé'],['Survivor','Destiny\'s Child'],['Fallin\'','Alicia Keys'],['Ex-Factor','Lauryn Hill']],[['Ain\'t No Way','Aretha Franklin']]],
+['Hype trap','Gym, drive, turn-up.','trap',[['First Class','Lil Baby'],['Gold Stacks','Future'],['Harambe','Young Thug'],['Street Sweeper','Gunna'],['Match My Fly','Moneybagg Yo'],['Dead Fresh','Lil Baby']],[['Ambition for Cash','Key Glock'],['Back in Blood','Pooh Shiesty ft. Lil Durk']]],
+['In my feelings','Emotional, melodic rap.','trap',[['Make It Out','Lil Baby'],['Thug Cry','Moneybagg Yo'],['Hard to Choose One','Future'],['Recognize Real','Young Thug'],['Real Love 14%','Fig0'],['Speechless','Beezo']],[['Heart on Ice','Rod Wave'],['Ghetto Angels','NoCap']]],
+['Afro party','Dancefloor Afrobeats.','afro',[['Ye','Burna Boy'],['Shekini','P-Square'],['Iskaba','Wande Coal'],['Pana','Tekno'],['Sungba','Asake'],['Skelewu','Davido']],[['Buga','Kizz Daniel ft. Tekno'],['Peru','Fireboy DML']]],
+['Afro love','Romantic, mid-tempo.','afro',[['Essence','Wizkid'],['Mad Over You','Runtown'],['Confession','Omah Lay'],['Duro','Tekno'],['Skin Tight','Mr Eazi'],['On the Low','Burna Boy']],[['Free Mind','Tems'],['Soweto','Victony']]],
+['UK after hours','Underground, moody, melodic.','uk',[['Plan A','Trezz0'],['Lemme Know','Lay8om'],['Connections','Loyal DTM'],['Real Roses','Hono'],['Wave 22','Trezz0'],['Lovely','Sonder']],[['Netflix & Chill','Fredo'],['Location','Dave ft. Burna Boy']]]];
+const mine=[
+['American rap and melodic trap','Melodic street rap, Southern trap, atmospheric beats and emotional rap.','trap',[
+['Lil Baby',['Ain\'t Gon','Dead Fresh','First Class','Global','This Week','Days Off','Make It Out']],
+['Moneybagg Yo',['I See Why','Close the Door','P RUN','Time Today','Said Sum','Match My Fly','Thug Cry']],
+['Future',['Gold Stacks','Massaging Me','Puffin on Zootiez','712PM','Hard to Choose One','Mad Luv']],
+['Young Thug',['Droppin Jewels','Recognize Real','Millions','Harambe','With Them','Check']],
+['Gunna',['conscience','one of wun','Street Sweeper','Triflin Hoes','NASTY GIRL / ON CAMERA']]],
+['Lil Durk','YoungBoy Never Broke Again']],
+['Classic R&B and soul','Soul, neo-soul, new jack swing and hip-hop soul. Your biggest playlist.','rnb',[
+['Mary J. Blige',['Be Without You','My Life','Be Happy','Family Affair','No More Drama','Not Gon\' Cry','Real Love','Take Me As I Am','Everything']],
+['Aaliyah',['Rock the Boat','Back & Forth','One in a Million']],
+['Alicia Keys',['Karma','Fallin\'','No One','If I Ain\'t Got You']],
+['Beyoncé',['Irreplaceable','Déjà Vu','Me, Myself and I']],
+['Brandy',['Baby','Full Moon','I Wanna Be Down']],
+['Destiny\'s Child',['Cater 2 U','Say My Name','Survivor']],
+['Lauryn Hill',['Ex-Factor','Everything Is Everything','I Get Out']],
+['Mariah Carey',['We Belong Together','Shake It Off','Fantasy']],
+['Janet Jackson',['All for You','That\'s the Way Love Goes','I Get Lonely']],
+['Ginuwine',['Pony','Differences','In Those Jeans']],
+['Craig David',['7 Days','Fill Me In','Walking Away']],
+['Erykah Badu',['On & On','Bag Lady','Didn\'t Cha Know']],
+['Jill Scott',['Golden','A Long Walk']],
+['John Legend',['Ordinary People','Save Room']],
+['D\'Angelo',['Brown Sugar','Untitled (How Does It Feel)']],
+['Bryson Tiller',['Don\'t']]],
+['Michael Jackson','Whitney Houston','Usher','Toni Braxton','TLC','Monica','Ne-Yo','Chris Brown','Prince','SWV','Jodeci','Faith Evans','Keith Sweat']],
+['Afrobeats and Afropop','Classic and new Nigerian Afrobeats, romantic and dancefloor.','afro',[
+['Wizkid',['Essence','Fever','Final (Baba Nla)','In My Bed']],
+['Burna Boy',['Ye','On the Low','Gbona','City Boys']],
+['Tekno',['Duro','Pana','Jogodo','Yawa']],
+['Wande Coal',['Baby Hello','Bumper to Bumper','Iskaba']],
+['Asake',['Sungba','Joha','Organise','Terminator']],
+['P-Square',['Shekini','Alingo']],
+['Rema',['Soundgasm','Baby (Is It a Crime)']],
+['Mr Eazi',['Leg Over','Skin Tight']],
+['Davido',['Skelewu']],['Runtown',['Mad Over You']],['Omah Lay',['Confession']]],
+['Maleek Berry']],
+['Underground UK rap','Melodic, moody UK rap from below the mainstream.','uk',[
+['Beezo',['Speechless','Risky','Dummy Shit','Flex Mode','Rebel','NGU']],
+['Trezz0',['Plan A','Say Nada','Ctsg','All Seasons','Wave 22']],
+['Lay8om',['Lemme Know','Hypebeast','Veteran','Last Race','Strange']],
+['Loyal DTM',['Connections','Amnesia','Wild Thoughts Freestyle']],
+['Fig0',['Real Love 14%']],['Hono',['Real Roses']],['Sonder',['Lovely']]],
+[]]];
+const gems=[
+["ICU","Coco Jones","rnb","Big modern R&B vocals with a 90s ballad heart"],
+["Roll Some Mo","Lucky Daye","rnb","Loose, funky neo-soul in the D'Angelo tradition"],
+["I Want You Around","Snoh Aalegra","rnb","Cinematic, late-night soul"],
+["Love Me Not","Ravyn Lenae","rnb","Light, bouncy alt R&B with an Aaliyah airiness"],
+["Black Truck","Mereba","rnb","Atlanta soul-rap, warm and slow"],
+["Monalisa","Lojay & Sarz","afro","Smooth Afrobeats with a soft, romantic bounce"],
+["Finesse","Pheelz ft. BNXN","afro","Street-pop groove like Asake's Sungba"],
+["Declan Rice","Odumodublvck","afro","Nigerian drill, where Afro meets your trap side"],
+["Leon the Professional","Knucks","uk","Jazzy, laid-back UK rap for the After Hours playlist"]];
+const gens=[
+["Be Careful","Cardi B","rnb","Lauryn Hill, Ex-Factor","Built on Ex-Factor, the same heartbreak 20 years later"],
+["ICU","Coco Jones","rnb","Mary J. Blige, Real Love","Today's take on the big hip-hop soul ballad"],
+["Nights Like This","Kehlani ft. Ty Dolla $ign","rnb","Aaliyah, One in a Million","Smooth and airy, the 2010s version of Aaliyah's sound"],
+["Little Things","Jorja Smith","uk","Craig David, Fill Me In","UK garage rhythm brought back for a new generation"],
+["African Queen","2Baba","afro","Wizkid, Essence","The 2004 love song that opened the door for modern Afrobeats"],
+["Stay Fly","Three 6 Mafia","trap","Moneybagg Yo, Match My Fly","The Memphis sound Moneybagg grew out of"],
+["Lollipop","Lil Wayne","trap","Young Thug, Harambe","The melodic, Auto-Tuned rap that shaped Thug and Future"]];
+const intl=[
+["Kwaku the Traveller","Black Sherif","afro","Ghana","Emotional, melodic rap in Twi, like Lil Baby's Make It Out"],
+["Ke Star (Remix)","Focalistic & Davido","afro","South Africa","Amapiano with Davido, who's already in your Afro playlist"],
+["Djadja","Aya Nakamura","rnb","France","French Afro-pop and R&B, catchy and confident"],
+["Number One","Diamond Platnumz ft. Davido","afro","Tanzania","Bongo Flava: East Africa's take on Afropop"],
+["Fever","Vybz Kartel","afro","Jamaica","Slow, romantic dancehall for the Afro Love mood"],
+["Lettre à une femme","Ninho","trap","France","Melodic French street rap with Lil Durk's emotional tone"]];
+const deep=[
+["I'm Goin' Down","Mary J. Blige","rnb","From My Life (1994). Not in your playlists yet"],
+["Mary Jane (All Night Long)","Mary J. Blige","rnb","Deep cut from What's the 411?"],
+["4 Page Letter","Aaliyah","rnb","A slow-burning Timbaland production from One in a Million"],
+["Next Lifetime","Erykah Badu","rnb","The dreamiest song on Baduizm"],
+["Almost Doesn't Count","Brandy","rnb","A 1999 ballad from Never Say Never"],
+["Emotionally Scarred","Lil Baby","trap","Lil Baby at his most emotional"],
+["Codeine Crazy","Future","trap","Fans call it Future's best song"],
+["Sold Out Dates","Gunna ft. Lil Baby","trap","Early Gunna, from Drip Season 3"],
+["Ojuelegba","Wizkid","afro","The Lagos story that made Wizkid global"],
+["Anybody","Burna Boy","afro","High-energy afro-fusion from African Giant"]];
+const wild=[
+["Maria También","Khruangbin","rnb","Psychedelic Thai-funk instrumental: pure groove, like a beat tape"],
+["Yègellé Tezeta","Mulatu Astatke","afro","1970s Ethiopian jazz, slow and hypnotic"],
+["Archangel","Burial","uk","Ghostly UK garage, made for 3 AM"],
+["Retrograde","James Blake","uk","Soulful UK electronic music with gospel chords"],
+["Home Is Where the Hatred Is","Gil Scott-Heron","rnb","Raw 70s soul poetry, a root of Lauryn and Erykah"],
+["Mas Que Nada","Jorge Ben Jor","afro","Brazilian samba-soul with African rhythm"]];
+const vault=[["Young Thug","trap"],["Future","trap"],["Lil Baby","trap"],["Gunna","trap"],["Moneybagg Yo","trap"],["Burna Boy","afro"],["Wizkid","afro"],["Asake","afro"],["Lay8om","uk"],["Trezz0","uk"],["Beezo","uk"],["Loyal DTM","uk"]];
+const spot={
+"Mary J. Blige":{sim:["Faith Evans","Monica","Keyshia Cole","Jaheim"],inf:["Aretha Franklin","Chaka Khan","Anita Baker"],deep:["I'm Goin' Down","Mary Jane (All Night Long)","Love No Limit"]},
+"Lil Baby":{sim:["Rod Wave","42 Dugg","Gunna","Lil Durk"],inf:["Young Thug","Gucci Mane"],deep:["Emotionally Scarred","Sum 2 Prove"]},
+"Future":{sim:["Young Thug","Gunna","Lil Durk"],inf:["Lil Wayne","Three 6 Mafia"],deep:["Codeine Crazy","Thought It Was a Drought"]},
+"Young Thug":{sim:["Gunna","Lil Keed","Future"],inf:["Lil Wayne","Gucci Mane"],deep:["Best Friend","Halftime"]},
+"Gunna":{sim:["Lil Baby","Young Thug","Lil Keed"],inf:["Young Thug"],deep:["Sold Out Dates","Oh Okay"]},
+"Moneybagg Yo":{sim:["Key Glock","Pooh Shiesty","Kevin Gates"],inf:["Three 6 Mafia","Yo Gotti"],deep:["Wockesha","Federal 3X"]},
+"Aaliyah":{sim:["Brandy","Tamia","Kehlani"],inf:["Janet Jackson"],deep:["4 Page Letter","Are You That Somebody"]},
+"Erykah Badu":{sim:["Jill Scott","Lauryn Hill","Robert Glasper"],inf:["Chaka Khan","Gil Scott-Heron"],deep:["Next Lifetime","Otherside of the Game"]},
+"Wizkid":{sim:["Tems","Ayra Starr","Davido"],inf:["Fela Kuti","2Baba"],deep:["Ojuelegba","Ginger"]},
+"Burna Boy":{sim:["Dave","Tiwa Savage","Fireboy DML"],inf:["Fela Kuti"],deep:["Anybody","Killin Dem"]},
+"Asake":{sim:["Seyi Vibez","Olamide","Pheelz"],inf:["Olamide"],deep:["Peace Be Unto You","Dupe"]},
+"Craig David":{sim:["Artful Dodger","Jorja Smith","MJ Cole"],inf:["UK garage"],deep:["Rendezvous","What's Your Flava"]},
+"Lauryn Hill":{sim:["Erykah Badu","Fugees","Jill Scott"],inf:["Roberta Flack","Gil Scott-Heron"],deep:["Nothing Even Matters","To Zion"]}};
+const rooms=[
+["Midnight Drive","Atmospheric rap and melodic R&B","#9d7bff","#ff4f87",[0,7],[["Dead Man Walking","Brent Faiyaz","rnb"],["Heart on Ice","Rod Wave","trap"]]],
+["Golden Era","90s and 2000s nostalgia","#ffbe3d","#ff4f87",[1],[["Kissin' You","Total","rnb"],["Cupid","112","rnb"]]],
+["Afro Nights","Afrobeats, Afropop and amapiano","#ffbe3d","#2fd3bd",[5,6],[["Ke Star (Remix)","Focalistic & Davido","afro"],["Peru","Fireboy DML","afro"]]],
+["Locked In","High-energy trap for the gym or the drive","#9d7bff","#2fd3bd",[3],[["Ambition for Cash","Key Glock","trap"],["Back in Blood","Pooh Shiesty ft. Lil Durk","trap"]]],
+["After Hours","Underground UK and alternative R&B","#2fd3bd","#9d7bff",[7],[["Leon the Professional","Knucks","uk"],["Archangel","Burial","uk"]]],
+["Soul Therapy","Emotional, soulful, healing","#ff4f87","#ffbe3d",[2,4],[["Ain't No Way","Aretha Franklin","rnb"],["Free Mind","Tems","afro"]]]];
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const G={rnb:['#ff4f87','#5e0f38','R&B'],trap:['#9d7bff','#1f0f50','Trap'],afro:['#ffbe3d','#8f300a','Afro'],uk:['#2fd3bd','#093c4f','UK']};
+const WN={rnb:'R&B and soul',trap:'Melodic trap',afro:'Afrobeats',uk:'UK rap'};
+const hsh=s=>{let x=0;for(const c of s)x=(x*31+c.charCodeAt(0))>>>0;return x};
+const apple=(t,a)=>'https://music.apple.com/search?term='+encodeURIComponent((t+' '+a).trim());
+const ytm=q=>'https://music.youtube.com/search?q='+encodeURIComponent(q);
+const coverBg=(s,g)=>{const k=hsh(s),[c1,c2]=G[g]||G.rnb,ang=k%360,p=k%4,x=15+k%70,y=15+(k>>3)%70;
+ const pat=p===0?`repeating-radial-gradient(circle at ${x}% ${y}%,#0000 0 9px,#ffffff14 9px 10px)`:p===1?`repeating-linear-gradient(${ang}deg,#0000 0 14px,#00000026 14px 28px)`:p===2?`radial-gradient(circle at ${x}% ${y}%,#ffffff55 0 17%,#0000 18%)`:`conic-gradient(from ${ang}deg at ${x}% ${y}%,#ffffff22,#0000 25%,#ffffff10 50%,#0000 75%)`;
+ return `${pat},radial-gradient(120% 90% at ${100-x}% 0%,#ffffff30,#0000 55%),linear-gradient(${ang}deg,${c1},${c2})`};
+const RATE=[['','Rate it'],['love','I absolutely love this'],['good','Good, not a favourite'],['mood','Only in certain moods'],['beat','Love the beat, not the vocals'],['vocals','Love the vocals, not the production'],['later','Give it another chance later'],['no','Not my taste']];
+let fb={};try{fb=JSON.parse(localStorage.getItem('lyra-r')||'{}')}catch(e){}
+const key=(t,a)=>t+' | '+a;
+const rateSel=(t,a,list)=>{const k=key(t,a),v=(fb[k]||{}).r||'';return `<select class="rate${v?' set':''}" aria-label="Rate ${esc(t)}" data-k="${esc(k)}" data-t="${esc(t)}" data-a="${esc(a)}" data-l="${esc(list)}">${RATE.map(o=>`<option value="${o[0]}"${o[0]===v?' selected':''}>${o[1]}</option>`).join('')}</select>`};
+const play='<svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1.5v11l9-5.5z" fill="currentColor"/></svg>';
+const cd=(t,a,g,why,o={})=>{g=G[g]?g:'rnb';const m=o.base?Math.min(99,o.base+hsh(t+a)%7):0;
+ return `<div class="cd"><a class="cover" data-t="${esc(t)}" data-a="${esc(a)}" data-g="${g}" href="${apple(t,a)}" target="_blank" rel="noopener" aria-label="Load ${esc(t)} by ${esc(a)} into the player"><i style="background:${coverBg(t+a,g)}"></i><span class="tag">${esc(o.tag||G[g][2])}</span>${m?`<span class="match">${m}%</span>`:''}<span class="lbl">${esc(t)}</span></a><div class="ct">${esc(t)}</div><div class="ca">${esc(a)}</div>${why?`<div class="why">${why}</div>`:''}<div class="acts"><a class="mini" href="${apple(t,a)}" target="_blank" rel="noopener">${play}&nbsp;Apple</a><a class="mini" href="${ytm(t+' '+a)}" target="_blank" rel="noopener">${play}&nbsp;YouTube</a>${o.list?rateSel(t,a,o.list):''}</div></div>`};
+const bar=(l,v,max,col,lab)=>`<div class="bar"><span>${esc(l)}</span><div class="track"><div class="fill" style="width:${Math.max(3,Math.round(100*v/max))}%;background:${col}"></div></div><span>${esc(lab)}</span></div>`;
+
+// library
+const lib=mine.flatMap(g=>g[3].flatMap(a=>a[1].map(t=>({t,a:a[0],g:g[2]}))));
+const artists=mine.flatMap(g=>g[3].map(a=>({n:a[0],g:g[2],songs:a[1]})));
+const extra=mine.flatMap(g=>g[4]);
+if($('nart'))$('nart').textContent=artists.length+extra.length;
+const per=['rnb','trap','afro','uk'].map(g=>[g,lib.filter(s=>s.g===g).length]);const pmax=Math.max(...per.map(p=>p[1]));
+
+// overview
+$('ovbars').innerHTML=per.map(([g,n])=>bar(WN[g],n,pmax,G[g][0],n+' songs')).join('');
+
+
+// DNA
+const traits=[['Melodic vocals','#ff4f87',5,'Singing or sing-rapping beats straight bars, in every world you love.'],['Deep bass and rhythm','#9d7bff',5,'808s, log drums and new jack swing grooves. The low end matters.'],['Emotional weight','#ff4f87',5,'Heartbreak, struggle and hope: Thug Cry, Not Gon\' Cry, Make It Out.'],['Nostalgia','#ffbe3d',4,'A strong pull to the 90s and 2000s, and to classic Afrobeats.'],['Atmosphere','#2fd3bd',4,'Late-night, spacious production: After Hours, All Night.'],['Underground instinct','#2fd3bd',4,'You dig past the charts, especially in UK rap.']];
+$('traits').innerHTML=traits.map(t=>`<div class="tcard" style="--c:${t[1]}"><b>${esc(t[0])}</b><div class="dots">${[1,2,3,4,5].map(i=>`<i class="${i<=t[2]?'on':''}"></i>`).join('')}</div><p>${esc(t[3])}</p></div>`).join('');
+$('eras').innerHTML=[['1990s R&B, soul',5,'#ff4f87'],['2000s R&B',4,'#ff4f87'],['2010s Afrobeats',4,'#ffbe3d'],['2010s trap',4,'#9d7bff'],['2020s melodic trap',4,'#9d7bff'],['2020s UK rap',4,'#2fd3bd']].map(e=>bar(e[0],e[1],5,e[2],['','','','','Strong','Core'][e[1]])).join('');
+$('worldfeel').innerHTML=[['R&B and soul','Healing, romantic, vocal-led'],['Melodic trap','Pain into melody, heavy bass'],['Afrobeats','Joy, romance, dance'],['UK rap','Moody, late-night, real']].map((w,i)=>`<div class="bar" style="grid-template-columns:9em minmax(0,1fr)"><span style="color:${G[['rnb','trap','afro','uk'][i]][0]};font-weight:600">${w[0]}</span><span style="text-align:left;color:var(--ink)">${w[1]}</span></div>`).join('');
+
+// discovery
+const shelves=[
+['For Your DNA','Highly compatible with all four of your worlds.',like.map(s=>[s[0],s[1],s[2],esc(s[3])]),90,'dna'],
+['Hidden Gems','Lesser-known artists you could love.',gems.map(s=>[s[0],s[1],s[2],esc(s[3])]),86,'gems'],
+['Across Generations','Older and newer versions of songs you already love.',gens.map(s=>[s[0],s[1],s[2],`Linked to <b>${esc(s[3])}</b>. ${esc(s[4])}`]),84,'generations'],
+['International Discovery','Your sound from other countries.',intl.map(s=>[s[0],s[1],s[2],`<b>${esc(s[3])}</b>. ${esc(s[4])}`]),80,'international'],
+['Deep Cuts','Lesser-known songs from artists you already have.',deep.map(s=>[s[0],s[1],s[2],esc(s[3])]),91,'deep'],
+['Wildcard','Completely unexpected, but there is always a thread.',wild.map(s=>[s[0],s[1],s[2],esc(s[3])]),68,'wildcard']];
+$('disc').innerHTML=shelves.map(sh=>`<div class="shelf"><h3>${sh[0]}</h3><p>${sh[1]} ${sh[2].length} picks.</p><div class="row">${sh[2].map(s=>cd(s[0],s[1],s[2],s[3],{base:sh[3],list:sh[4]})).join('')}</div></div>`).join('');
+
+// lab
+const pool=[...like.map(s=>[s,1,'dna',esc(s[3])]),...deep.map(s=>[s,1.3,'deep',esc(s[3])]),...gems.map(s=>[s,2,'gems',esc(s[3])]),...gens.map(s=>[s,2.2,'generations',`Linked to <b>${esc(s[3])}</b>. ${esc(s[4])}`]),...exp.map(s=>[s,3,'lab',`Linked to <b>${esc(s[3])}</b>. ${esc(s[4])}`]),...intl.map(s=>[s,3.6,'international',`<b>${esc(s[3])}</b>. ${esc(s[4])}`]),...wild.map(s=>[s,5,'wildcard',esc(s[3])])];
+const labText=v=>v<25?['Comfort zone','Songs that sit right inside your four worlds. Safe, but still new to you.']:v<50?['Controlled exploration','Mostly familiar, with a push into neo-soul, alt R&B, amapiano and underground melodic rap.']:v<75?['Bold crossings','Linked to your favourites, but from new scenes, countries and eras.']:['Deep space','Jazz, electronic, Ethiopian and Brazilian music. Each one still has a link to your sound.'];
+const runLab=()=>{const v=+$('intensity').value,t=1+4*v/100;$('dial').textContent=v+'%';$('mixF').style.width=(100-v)+'%';$('mixN').style.width=v+'%';$('famL').textContent='Familiar '+(100-v)+'%';$('newL').textContent='New '+v+'%';
+ const [a,b]=labText(v);$('labTitle').textContent=a;$('labDesc').textContent=b;
+ const pick=pool.map(p=>[p,Math.abs(p[1]-t)+(hsh(p[0][0])%10)/40]).sort((x,y)=>x[1]-y[1]).slice(0,12);
+ $('labgrid').innerHTML=pick.map(([p])=>cd(p[0][0],p[0][1],p[0][2],p[3],{base:Math.round(96-p[1]*6),list:'lab-'+v,tag:p[1]>=3?'Explore':G[p[0][2]]?.[2]})).join('')};
+$('intensity').addEventListener('input',runLab);runLab();
+
+// universe
+{const hubs={rnb:[255,215],trap:[745,215],afro:[255,590],uk:[745,590]};const pos={};let edges='',nodes='';
+ Object.entries(hubs).forEach(([g,[hx,hy]])=>{const list=artists.filter(a=>a.g===g);list.forEach((a,i)=>{const an=-Math.PI/2+i/list.length*Math.PI*2,r=list.length>10?(i%2?190:125):150;pos[a.n]=[hx+Math.cos(an)*r,hy+Math.sin(an)*r*.82,g,Math.cos(an)]})});
+ const cross=[['Lil Baby','Gunna'],['Young Thug','Gunna'],['Future','Young Thug'],['Lauryn Hill','Erykah Badu'],['Erykah Badu','Jill Scott'],["D'Angelo",'Erykah Badu'],['Aaliyah','Brandy'],['Wizkid','Burna Boy'],['Tekno','Wizkid'],['Asake','Wande Coal'],['Lay8om','Trezz0'],['Bryson Tiller','Future'],['Craig David','Loyal DTM'],['Davido','Wizkid'],['Mary J. Blige','Lauryn Hill'],['Burna Boy','Craig David']];
+ window.LINKS=cross;
+ Object.entries(pos).forEach(([n,[x,y,g]])=>{edges+=`<line class="edge" data-a="${esc(n)}" x1="${hubs[g][0]}" y1="${hubs[g][1]}" x2="${x.toFixed(0)}" y2="${y.toFixed(0)}"/>`});
+ cross.forEach(([a,b])=>{if(pos[a]&&pos[b])edges+=`<line class="edge" data-a="${esc(a)}" data-b="${esc(b)}" x1="${pos[a][0].toFixed(0)}" y1="${pos[a][1].toFixed(0)}" x2="${pos[b][0].toFixed(0)}" y2="${pos[b][1].toFixed(0)}" stroke-dasharray="4 5"/>`});
+ Object.entries(hubs).forEach(([g,[x,y]])=>{nodes+=`<circle cx="${x}" cy="${y}" r="46" fill="${G[g][0]}" opacity=".14"/><circle cx="${x}" cy="${y}" r="28" fill="${G[g][0]}"/><text x="${x}" y="${y+5}" text-anchor="middle" font-family="Unbounded" font-weight="800" font-size="15" fill="#0a0408">${G[g][2]}</text>`});
+ Object.entries(pos).forEach(([n,[x,y,g,c]])=>{const r=7+Math.min(artists.find(a=>a.n===n).songs.length,9)*1.3;const anc=c>0.25?'start':c<-0.25?'end':'middle';const dx=anc==='start'?r+5:anc==='end'?-r-5:0,dy=anc==='middle'?(y<(g==='rnb'||g==='trap'?215:590)?-r-6:r+14):4;
+  nodes+=`<g class="node" tabindex="0" role="button" aria-label="${esc(n)}" data-n="${esc(n)}"><circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${r}" fill="${G[g][0]}" fill-opacity=".85"/><text x="${(x+dx).toFixed(0)}" y="${(y+dy).toFixed(0)}" text-anchor="${anc}">${esc(n)}</text></g>`});
+ $('map').innerHTML=edges+nodes;}
+const inLib=n=>artists.find(a=>a.n===n);
+const showSpot=n=>{const a=inLib(n);if(!a)return;const s=spot[n]||{};const links=LINKS.filter(l=>l.includes(n)).map(l=>l[0]===n?l[1]:l[0]);
+ document.querySelectorAll('#map .edge').forEach(e=>e.classList.toggle('hot',e.dataset.a===n||e.dataset.b===n));
+ const ch=(arr,kind)=>arr.map(x=>inLib(x)?`<button class="chip" type="button" data-n="${esc(x)}">${esc(x)}</button>`:`<a class="chip" href="${kind==='song'?apple(x,n):apple(x,'')}" target="_blank" rel="noopener">${esc(x)}</a>`).join('');
+ $('spot').innerHTML=`<div style="height:120px;border-radius:16px;background:${coverBg(n,a.g)};margin-bottom:12px"></div><div class="eyebrow" style="color:${G[a.g][0]};margin:0">${WN[a.g]}</div><h3>${esc(n)}</h3><div class="note">${a.songs.length} of your songs</div>
+ <div class="lbl2">Your songs</div><div class="chips">${a.songs.map(t=>`<a class="chip" href="${apple(t,n)}" target="_blank" rel="noopener">${esc(t)}</a>`).join('')}</div>
+ ${s.deep?`<div class="lbl2">Unexplored: start here</div><div class="chips">${ch(s.deep,'song')}</div>`:''}
+ ${s.sim?`<div class="lbl2">Similar artists</div><div class="chips">${ch(s.sim)}</div>`:''}
+ ${s.inf?`<div class="lbl2">Influences</div><div class="chips">${ch(s.inf)}</div>`:''}
+ ${links.length?`<div class="lbl2">Connected in your library</div><div class="chips">${ch(links)}</div>`:''}
+ <div class="acts" style="margin-top:16px"><a class="mini" href="${ytm(n+' unreleased')}" target="_blank" rel="noopener">Unreleased on YouTube</a><a class="mini" href="${apple(n,'')}" target="_blank" rel="noopener">Full discography</a></div>`};
+$('spot').innerHTML='<h3>Tap any star</h3><p class="note" style="font-size:15px">Each dot is an artist in your library, sized by how many of their songs you have. Dashed lines are musical connections between artists.</p>';
+document.addEventListener('click',e=>{const n=e.target.closest('[data-n]');if(n&&(n.closest('#map')||n.closest('#spot')))showSpot(n.dataset.n)});
+$('map').addEventListener('keydown',e=>{const n=e.target.closest('.node');if(n&&(e.key==='Enter'||e.key===' ')){e.preventDefault();showSpot(n.dataset.n)}});
+
+// rooms
+$('roomgrid').innerHTML=rooms.map((r,i)=>`<button class="room" type="button" aria-pressed="false" data-r="${i}" style="background:radial-gradient(90% 80% at 80% 10%,${r[3]}88,transparent 60%),linear-gradient(160deg,${r[2]},#0a0408 85%)"><b>${esc(r[0])}</b><span>${esc(r[1])}</span></button>`).join('');
+const showRoom=i=>{const r=rooms[i];document.querySelectorAll('.room').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.r===i)));
+ const own=r[4].flatMap(ci=>cats[ci][3].map(s=>[s[0],s[1],cats[ci][2]]));
+ $('roomview').innerHTML=`<div class="shelf"><h3>${esc(r[0])}</h3><p>${own.length} of your songs + ${r[5].length} new for this room.</p><div class="row">${own.map(s=>cd(s[0],s[1],s[2],'')).join('')}${r[5].map(s=>cd(s[0],s[1],s[2],'<b>New for this room</b>',{list:'room-'+r[0]})).join('')}</div></div>`};
+$('roomgrid').addEventListener('click',e=>{const b=e.target.closest('.room');if(b)showRoom(+b.dataset.r)});showRoom(0);
+
+// vault
+$('vaultgrid').innerHTML=vault.map(([n,g])=>`<div class="card" style="padding:0;overflow:hidden"><div style="height:90px;background:${coverBg(n+'vault',g)}"></div><div style="padding:16px"><b style="font-family:Unbounded;font-size:17px">${esc(n)}</b><div class="note">${WN[g]}</div><div class="acts" style="margin-top:10px"><a class="mini" href="${ytm(n+' unreleased')}" target="_blank" rel="noopener">Unreleased</a><a class="mini" href="${ytm(n+' snippet')}" target="_blank" rel="noopener">Snippets</a><a class="mini" href="${ytm(n+' remix')}" target="_blank" rel="noopener">Remixes</a></div></div></div>`).join('');
+
+// library
+let gsel='all';
+$('libsub').textContent=`${lib.length} songs and ${artists.length+extra.length} artists named in your profile so far, out of 745+ in your playlists. Send the full playlist list and every song lands here.`;
+$('gfilt').innerHTML=[['all','All'],...Object.entries(WN)].map(([k,v])=>`<button class="filt" type="button" data-g="${k}" aria-pressed="${k==='all'}">${esc(v)}</button>`).join('');
+const runLib=()=>{const q=$('q').value.trim().toLowerCase();const rows=lib.filter(s=>(gsel==='all'||s.g===gsel)&&(!q||(s.t+' '+s.a).toLowerCase().includes(q)));
+ $('lib').innerHTML=rows.map(s=>`<tr><td><b style="font-weight:600">${esc(s.t)}</b></td><td>${esc(s.a)}</td><td><span class="gdot" style="background:${G[s.g][0]}"></span>${WN[s.g]}</td><td><a class="mini" href="${apple(s.t,s.a)}" target="_blank" rel="noopener">Apple</a><a class="mini" href="${ytm(s.t+' '+s.a)}" target="_blank" rel="noopener">YouTube</a></td></tr>`).join('')||'<tr><td colspan="4" class="note">No songs match that search.</td></tr>'};
+$('q').addEventListener('input',runLib);$('gfilt').addEventListener('click',e=>{const b=e.target.closest('.filt');if(!b)return;gsel=b.dataset.g;document.querySelectorAll('.filt').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));runLib()});runLib();
+
+// evolution chart
+const evo=$('evo');const drawEvo=()=>{const W=evo.clientWidth,H=evo.clientHeight;if(!W)return;const L=40,R=W-14,T=14,B=H-28,tot=lib.length;let s='';
+ [0,20,40].forEach(v=>{const y=B-(B-T)*v/45;s+=`<line x1="${L}" x2="${R}" y1="${y}" y2="${y}" stroke="#ffffff14"/><text x="${L-6}" y="${y+4}" text-anchor="end" font-size="11" fill="#b7a9b2">${v}%</text>`});
+ for(let w=1;w<=8;w++){const x=L+(R-L)*(w-1)/7;s+=`<text x="${x}" y="${H-8}" text-anchor="middle" font-size="11" fill="#b7a9b2">${W<420&&w%2===0?'':'W'+w}</text>`}
+ s+=`<line x1="${L}" x2="${R}" y1="${B}" y2="${B}" stroke="#ffffff30"/>`;
+ per.forEach(([g,n],i)=>{const v=100*n/tot,y=B-(B-T)*v/45;s+=`<line x1="${L}" x2="${R}" y1="${y}" y2="${y}" stroke="${G[g][0]}" stroke-opacity=".3" stroke-dasharray="3 6"/><circle cx="${L}" cy="${y}" r="6" fill="${G[g][0]}"/><text x="${L+12}" y="${y+4}" font-size="12" font-weight="600" fill="${G[g][0]}">${WN[g]} ${Math.round(v)}%</text>`});
+ evo.innerHTML=s};const roE=new ResizeObserver(drawEvo);roE.observe(evo);
+
+// nav + routing
+const pages=[...document.querySelectorAll('.page')];
+$('nav').innerHTML=['Listen','Intelligence','Labs','Collection'].map(gr=>`<div class="gl">${gr}</div>`+pages.filter(p=>p.dataset.grp===gr).map(p=>`<a class="nb" href="#${p.id}" data-p="${p.id}" title="${esc(p.dataset.t)}"><i></i><span>${esc(p.dataset.t)}</span></a>`).join('')).join('');
+const go=id=>{if(!pages.some(p=>p.id===id))id='overview';pages.forEach(p=>p.hidden=p.id!==id);const pg=$(id);document.documentElement.style.setProperty('--acc',pg.dataset.c);
+ document.querySelectorAll('.nb').forEach(b=>b.toggleAttribute('aria-current',b.dataset.p===id)||b.dataset.p===id&&b.setAttribute('aria-current','page'));
+ document.querySelectorAll('.nb').forEach(b=>{if(b.dataset.p===id)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});if(id==='replay')drawEvo()};
+$('nav').addEventListener('click',e=>{const b=e.target.closest('.nb');if(!b)return;e.preventDefault();go(b.dataset.p);try{history.replaceState(null,'','#'+b.dataset.p)}catch(_){}window.scrollTo({top:0})});
+document.addEventListener('click',e=>{const q=e.target.closest('[data-go]');if(q){go(q.dataset.go);window.scrollTo({top:0})}});
+window.addEventListener('hashchange',()=>go(location.hash.slice(1)));go(location.hash.slice(1));
+
+// ratings: localStorage + db
+let DB=null;const did=k=>k.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,120);
+const saveRate=async(k,rec)=>{if(rec)fb[k]=rec;else delete fb[k];try{localStorage.setItem('lyra-r',JSON.stringify(fb))}catch(_){}
+ if(DB){try{const d=DB.collection('ratings').doc(did(k));if(rec)await d.set(rec);else await d.delete();$('savestate').textContent='Saved. Lyra will use this in your weekly story.'}catch(err){$('savestate').textContent='Saved on this device. Use Copy my ratings to send them to me.'}}};
+document.addEventListener('change',e=>{const s=e.target.closest('select.rate');if(!s)return;const k=s.dataset.k;s.classList.toggle('set',!!s.value);
+ document.querySelectorAll('select.rate').forEach(x=>{if(x!==s&&x.dataset.k===k){x.value=s.value;x.classList.toggle('set',!!s.value)}});
+ saveRate(k,s.value?{title:s.dataset.t,artist:s.dataset.a,rating:s.value,label:RATE.find(r=>r[0]===s.value)[1],list:s.dataset.l,at:new Date().toISOString()}:null)});
+(async()=>{try{const c=window.claude&&await window.claude.use('db');if(!c)return;DB=c;const snap=await DB.collection('ratings').get();const docs=(snap&&(snap.docs||snap))||[];
+ for(const d of docs){const v=typeof d.data==='function'?d.data():(d.data||d);if(v&&v.title){const k=key(v.title,v.artist);fb[k]=v}}
+ document.querySelectorAll('select.rate').forEach(x=>{const v=(fb[x.dataset.k]||{}).rating||(fb[x.dataset.k]||{}).r||'';x.value=v;x.classList.toggle('set',!!v)})}catch(_){}})();
+$('copy').addEventListener('click',async()=>{const ks=Object.keys(fb);if(!ks.length){$('savestate').textContent='Rate a few songs first.';return}
+ const txt='My Lyra ratings:\n'+ks.map(k=>`${k}: ${fb[k].label||fb[k].rating}`).join('\n');
+ try{await navigator.clipboard.writeText(txt);$('savestate').textContent='Copied. Paste it to me in the chat.'}catch(_){const t=$('fbtext');t.hidden=false;t.value=txt;t.select()}});
+
+// DJ
+const djEx=['Play something like Mary J. Blige but from a modern artist','Give me music for a late-night drive','Find African songs with the same vibe as my favourite R&B','A set that slowly moves from R&B to melodic trap','Five artists that could become my favourites','Surprise me','Find me unreleased Young Thug songs'];
+$('djchips').innerHTML=djEx.map(x=>`<button class="qbtn" type="button" data-q="${esc(x)}">${esc(x)}</button>`).join('');
+$('djchips').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(b){$('djq').value=b.dataset.q;runDJ()}});
+let SAMPLE=null,busy=false;const sampleP=(async()=>{try{SAMPLE=window.claude&&await window.claude.use('sample')}catch(_){}if(!SAMPLE)$('djstate').textContent='The AI features work when this page is opened in Claude.';return SAMPLE})();
+const libTxt=artists.map(a=>`${a.n} (${WN[a.g]}): ${a.songs.join(', ')}`).join('\n');
+const TASTE=`The listener's taste is balanced across four worlds: 90s/2000s R&B and soul, Atlanta/Memphis melodic trap, Nigerian Afrobeats, and underground melodic UK rap. They love melodic vocals, deep bass, emotional and nostalgic songs, late-night atmosphere, and digging past the charts. Do not treat any single artist as their favourite.`;
+const ratedTxt=()=>Object.values(fb).map(v=>`${v.title} by ${v.artist}: ${v.label||v.rating}`).join('\n')||'none yet';
+const ask=async(task,shape,stateEl)=>{await sampleP;if(!SAMPLE){stateEl.textContent='This works when the page is opened in Claude.';return null}
+ if(busy){stateEl.textContent='Lyra is busy with another request.';return null}busy=true;stateEl.textContent='Lyra is thinking...';$('orb').classList.add('busy');
+ try{const r=await SAMPLE.json(`You are Lyra, a personal music intelligence. ${TASTE}\nTheir library:\n${libTxt}\nTheir ratings:\n${ratedTxt()}\n\nTask: ${task}\nOnly name real, existing songs and artists; never invent titles. Answer only with JSON shaped like: ${shape}`,{modelTier:'default'});stateEl.textContent='';return r}
+ catch(err){stateEl.textContent=err&&err.code==='rate_limited'?'Lyra needs a moment. Try again shortly.':err&&err.code==='not_granted'?'Lyra needs permission to ask Claude.':'Something went wrong. Try again.';return null}
+ finally{busy=false;$('orb').classList.remove('busy')}};
+const SONGS='{"songs":[{"title":"","artist":"","world":"rnb|trap|afro|uk","why":"one short sentence","unreleased":false}]}';
+const songCards=(songs,list)=>(Array.isArray(songs)?songs:[]).slice(0,14).map(s=>cd(String(s.title||''),String(s.artist||''),G[s.world]?s.world:'rnb',esc(s.why||''),{list,tag:s.unreleased?'Unreleased':undefined})).join('');
+const MODES=[['Curator','Exceptional music that matches your taste closely.'],['Explorer','Pushes you beyond your comfort zone, always with a link back.'],['Historian','Teaches the history and influences behind your music.'],['Analyst','Explains your habits and why songs fit you.'],['DJ','Builds a perfectly flowing listening session.'],['Scout','Finds emerging artists and hidden gems.']];let MODE='DJ';
+$('modes').innerHTML=MODES.map(m=>`<button class="mode" type="button" role="radio" aria-checked="${m[0]===MODE}" data-mode="${m[0]}">${m[0]}</button>`).join('')+`<div class="modedesc" id="modedesc" style="flex-basis:100%;margin:4px 0 0">${MODES.find(m=>m[0]===MODE)[1]}</div>`;
+$('modes').addEventListener('click',e=>{const b=e.target.closest('[data-mode]');if(!b)return;MODE=b.dataset.mode;document.querySelectorAll('.mode').forEach(x=>x.setAttribute('aria-checked',String(x===b)));$('modedesc').textContent=MODES.find(m=>m[0]===MODE)[1]});
+const runDJ=async()=>{const q=$('djq').value.trim();if(!q)return;
+ const r=await ask(`Act in "${MODE}" mode (${MODES.find(m=>m[0]===MODE)[1]}). Request: "${q}". Build a set of 8 to 12 songs, preferring songs not already in their library unless asked. In Historian or Analyst mode, put the insight in the intro. For unreleased requests, only list leaked or unreleased titles you are confident exist and mark them unreleased.`,'{"intro":"two warm sentences","songs":[{"title":"","artist":"","world":"rnb|trap|afro|uk","why":"one short sentence","unreleased":false}]}',$('djstate'));
+ if(!r)return;$('djout').innerHTML=`<p class="djmsg">${esc(r.intro||'Here is your set.')}</p><div class="grid">${songCards(r.songs,'dj-'+MODE)}</div>`;$('djstate').textContent='Set ready. Rate songs to teach Lyra.'};
+$('djform').addEventListener('submit',e=>{e.preventDefault();runDJ()});
+
+// home extras
+{let s='';for(let k=0;k<14;k++){const y=150+k*6,amp=40+k*4,ph=k*.35;let d=`M0 ${y}`;for(let x=0;x<=800;x+=20)d+=` L${x} ${(y+Math.sin(x/90+ph)*amp*Math.sin(x/400+1)).toFixed(1)}`;s+=`<path d="${d}" fill="none" stroke="${k%2?'#2fd3bd':'#9d7bff'}" stroke-opacity="${.12+k*.025}" stroke-width="1.2"/>`}
+$('bwave').innerHTML=s;}
+const top=['Lil Baby','Aaliyah','Wizkid','Trezz0','Future','Lauryn Hill','Burna Boy','Beezo','Gunna','Erykah Badu','Asake','Lay8om'];
+$('toparts').innerHTML=top.map(n=>{const x=inLib(n);return `<button class="ab" type="button" data-artist="${esc(n)}"><i style="background:${coverBg(n,x.g)}">${esc(n.replace(/[^A-Za-z ]/g,'').split(' ').filter(Boolean).map(w=>w[0]).join('').slice(0,2))}</i>${esc(n)}<small>${WN[x.g]}</small></button>`}).join('');
+document.addEventListener('click',e=>{const b=e.target.closest('[data-artist]');if(b){go('universe');showSpot(b.dataset.artist);window.scrollTo({top:0})}});
+const dailyL=[like[0],like[10],like[16],like[21],like[3],like[12],like[18],like[23]].map(s=>[s[0],s[1],s[2]]);
+$('daily').innerHTML=dailyL.map((s,i)=>`<div class="drow"><button class="mrow" type="button" data-play="${i}"><i style="background:${coverBg(s[0]+s[1],s[2])}"></i><span><b>${esc(s[0])}</b><small>${esc(s[1])}</small></span></button><span class="dw"><span class="gdot" style="background:${G[s[2]][0]}"></span>${G[s[2]][2]}</span>${rateSel(s[0],s[1],'daily')}</div>`).join('');
+$('daily').addEventListener('click',e=>{const b=e.target.closest('[data-play]');if(b){Q=dailyL;setNow(+b.dataset.play,true)}});
+$('mixinfo').textContent=like.length+' songs · 4 worlds';
+// moods + sidebar rooms
+$('moods').innerHTML=`<button class="mood" type="button" data-mood="home" aria-current="true">For you</button>`+rooms.map((r,i)=>`<button class="mood" type="button" data-mood="${i}">${esc(r[0])}</button>`).join('');
+$('sroom').innerHTML=rooms.map((r,i)=>`<button class="nb" type="button" data-mood="${i}" title="${esc(r[0])}"><i style="background:${r[2]};opacity:1"></i><span>${esc(r[0])}</span></button>`).join('');
+document.addEventListener('click',e=>{const b=e.target.closest('[data-mood]');if(!b)return;const m=b.dataset.mood;document.querySelectorAll('.mood').forEach(x=>x.setAttribute('aria-current',String(x.dataset.mood===m)));
+ if(m==='home')go('overview');else{go('rooms');showRoom(+m)}window.scrollTo({top:0})});
+// search
+$('sform').addEventListener('submit',e=>{e.preventDefault();$('q').value=$('gsearch').value;gsel='all';go('library');runLib()});
+
+// player
+let Q=like.map(s=>[s[0],s[1],s[2]]),NI=-1;
+let setNow=i=>{if(!Q.length)return;NI=(i+Q.length)%Q.length;const [t,a,g]=Q[NI];const bg=coverBg(t+a,g);
+ $('part').style.background=bg;$('pt').textContent=t;$('pa').textContent=a;$('pplay').href=apple(t,a);$('pplay').setAttribute('aria-label','Play '+t+' on Apple Music');
+ $('pr').innerHTML=`<a class="mini" href="${ytm(t+' '+a)}" target="_blank" rel="noopener">YouTube</a>${rateSel(t,a,'player')}`;
+ $('nart2').style.background=bg;$('ntitle').textContent=t;$('nartist').textContent=a;
+ $('nacts').innerHTML=`<a class="mini" href="${apple(t,a)}" target="_blank" rel="noopener">${play}&nbsp;Apple Music</a><a class="mini" href="${ytm(t+' '+a)}" target="_blank" rel="noopener">${play}&nbsp;YouTube</a>`;
+ $('queue').innerHTML=Array.from({length:Math.min(6,Q.length-1)},(_,k)=>{const j=(NI+1+k)%Q.length,[qt,qa,qg]=Q[j];return `<li><button class="mrow" type="button" data-q="${j}"><i style="background:${coverBg(qt+qa,qg)}"></i><span><b>${esc(qt)}</b><small>${esc(qa)}</small></span></button></li>`}).join('')};
+$('queue').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(b)setNow(+b.dataset.q,true)});
+$('next').addEventListener('click',()=>setNow(NI+1,true));$('prev').addEventListener('click',()=>setNow(NI-1,true));
+$('playmix').addEventListener('click',()=>{Q=like.map(s=>[s[0],s[1],s[2]]);setNow(0,true)});
+document.addEventListener('click',e=>{const c=e.target.closest('a.cover');if(!c)return;e.preventDefault();const box=c.closest('.row,.grid')||document;
+ Q=[...box.querySelectorAll('a.cover')].map(x=>[x.dataset.t,x.dataset.a,x.dataset.g]);setNow(Q.findIndex(q=>q[0]===c.dataset.t&&q[1]===c.dataset.a),true)});
+
+// ---------- round 2 ----------
+const allRecs=[...like.map(s=>[s[0],s[1],s[2],s[3],'dna']),...gems.map(s=>[s[0],s[1],s[2],s[3],'gems']),...gens.map(s=>[s[0],s[1],s[2],s[4],'generations']),...intl.map(s=>[s[0],s[1],s[2],s[4],'international',s[3]]),...deep.map(s=>[s[0],s[1],s[2],s[3],'deep']),...wild.map(s=>[s[0],s[1],s[2],s[3],'wildcard']),...exp.map(s=>[s[0],s[1],s[2],s[4],'lab'])];
+// collapse
+$('collapse').addEventListener('click',()=>{const app=document.querySelector('.app');const m=app.classList.toggle('mini');$('collapse').setAttribute('aria-expanded',String(!m));$('collapse').setAttribute('aria-label',m?'Expand sidebar':'Collapse sidebar');try{localStorage.setItem('lyra-mini',m?'1':'')}catch(_){}});
+try{if(localStorage.getItem('lyra-mini'))$('collapse').click()}catch(_){}
+// home: big picks + roulette
+$('bigpicks').innerHTML=[like[21],gems[0],intl[0],like[10],gens[0]].map((s,i)=>cd(s[0],s[1],s[2],'',{base:90-i})).join('');
+let rot=0;$('spin').addEventListener('click',()=>{const s=allRecs[Math.floor(Math.random()*allRecs.length)];rot+=720+Math.floor(Math.random()*360);$('rart').style.transform=`rotate(${rot}deg)`;
+ setTimeout(()=>{$('rart').style.background=coverBg(s[0]+s[1],s[2]);$('rart').style.transform='none';rot=0;$('rt').textContent=s[0];$('ra').textContent=s[1];Q=[[s[0],s[1],s[2]]];setNow(0,true)},900)});
+// fingerprint
+const twins=[['Mary J. Blige','Lil Baby','Both turn pain into melody; raw, wounded vocals over heavy low end.'],['Aaliyah','Wizkid','Light, effortless vocals that float above the rhythm.'],['Lauryn Hill','Trezz0','Storytelling first, with soul-sampled warmth underneath.'],['Future','Omah Lay','Hazy, melancholy melodies that blur singing and rapping.']];
+$('finger').innerHTML=`<div class="card"><h3>Sound signature</h3>${[['Vocals','Melodic, emotional, sing-rap'],['Low end','808s, log drums, deep sub-bass'],['Tempo','Mid-tempo grooves over fast bangers'],['Production','Spacious, atmospheric, late-night'],['Themes','Love, struggle, loyalty, nostalgia']].map(x=>`<div class="bar" style="grid-template-columns:7em minmax(0,1fr)"><span style="color:var(--mute)">${x[0]}</span><span style="text-align:left;color:var(--ink)">${x[1]}</span></div>`).join('')}</div>
+<div class="card"><h3>Taste twins</h3><p class="note" style="margin:-6px 0 10px">Artists from different worlds who share the same musical DNA.</p>${twins.map(t=>`<div style="margin:10px 0"><b>${esc(t[0])} ↔ ${esc(t[1])}</b><div class="note" style="font-size:14px">${esc(t[2])}</div></div>`).join('')}</div>
+<div class="card"><h3>Taste contradictions</h3>${['Gentle 90s love songs next to hard Memphis trap. You like softness and grit equally.','Deep underground UK names next to global superstars like Beyoncé and Burna Boy.','Party Afrobeats and heartbreak R&B in the same rotation. Your mood decides, not the genre.'].map(t=>`<p style="margin:8px 0;font-size:15px">${t}</p>`).join('')}</div>
+<div class="card"><h3>Musical blind spots</h3><p class="note" style="margin:-6px 0 10px">Close to your taste, barely explored.</p><div class="chips">${[['Amapiano','Ke Star Remix Focalistic'],['Alté','Amaarae'],['Neo-soul revival','Cleo Sol'],['UK garage','Artful Dodger'],['Ghanaian drill','Black Sherif'],['Dancehall','Popcaan'],['Jazz-soul','Robert Glasper']].map(c=>`<a class="chip" href="${apple(c[1],'')}" target="_blank" rel="noopener">${c[0]}</a>`).join('')}</div></div>`;
+const score=s=>{const r=Object.values(fb).filter(v=>v.artist===s[1]||(v.list&&v.list===s[4]));let b=({dna:88,deep:90,gems:84,generations:83,international:78,lab:76,wildcard:66})[s[4]]||80;r.forEach(v=>{b+=({love:4,good:2,mood:1,beat:0,vocals:0,later:-1,no:-5})[v.rating]||0});return Math.max(40,Math.min(99,b+hsh(s[0])%6))};
+const drawFuture=()=>{const ranked=allRecs.filter(s=>!fb[key(s[0],s[1])]).map(s=>[s,score(s)]).sort((x,y)=>y[1]-x[1]).slice(0,8);
+ $('future').innerHTML=ranked.map(([s,sc])=>cd(s[0],s[1],s[2],esc(s[3]),{list:'future',tag:sc+'% favourite chance'})).join('')};drawFuture();
+// fusion
+const INF=['Classic R&B','Neo-soul','Hip-hop soul','Melodic trap','Memphis rap','Afrobeats','Amapiano','Alté','UK rap','UK garage','Dancehall','Jazz','70s soul','Drill','The 1990s','The 2020s','Mary J. Blige','Wizkid','Lil Baby','Burna Boy','Aaliyah','Future','Trezz0'];
+$('fa').innerHTML=INF.map(x=>`<option${x==='Classic R&B'?' selected':''}>${esc(x)}</option>`).join('');$('fb').innerHTML=INF.map(x=>`<option${x==='Afrobeats'?' selected':''}>${esc(x)}</option>`).join('');
+const fl=()=>{const v=+$('fmix').value;$('fal').textContent=v+'% '+$('fa').value;$('fbl').textContent=(100-v)+'% '+$('fb').value};['fmix','fa','fb'].forEach(i=>$(i).addEventListener('input',fl));fl();
+$('fgo').addEventListener('click',async()=>{const v=+$('fmix').value;const r=await ask(`Find 10 real songs that blend ${v}% "${$('fa').value}" with ${100-v}% "${$('fb').value}". Mood: ${$('fmood').value}. Each "why" explains how the song mixes the two.`,SONGS,$('fstate'));if(r)$('fout').innerHTML=songCards(r.songs,'fusion')});
+// rabbit holes
+$('rstart').innerHTML=mine.map(g=>`<optgroup label="${esc(g[0])}">${g[3].flatMap(a=>a[1].map(t=>`<option value="${esc(t+' | '+a[0])}">${esc(t)} – ${esc(a[0])}</option>`)).join('')}</optgroup>`).join('');
+const drawPath=steps=>{$('rpath').innerHTML=steps.map((s,i)=>`<li class="step"><div class="sa" style="background:${coverBg(s.title+s.artist,G[s.world]?s.world:'rnb')}"></div><div><small>${i===0?'Starting point':i===steps.length-1?'New territory':'Step '+i}</small><b>${esc(s.title)}</b><div class="ca">${esc(s.artist)}</div><p>${esc(s.why)}</p><div class="acts"><a class="mini" href="${apple(s.title,s.artist)}" target="_blank" rel="noopener">${play}&nbsp;Apple</a><a class="mini" href="${ytm(s.title+' '+s.artist)}" target="_blank" rel="noopener">${play}&nbsp;YouTube</a>${i?rateSel(s.title,s.artist,'rabbit'):''}</div></div></li>`).join('')};
+drawPath([{title:'My Life',artist:'Mary J. Blige',world:'rnb',why:'Familiar ground: hip-hop soul from your library.'},{title:'On & On',artist:'Erykah Badu',world:'rnb',why:'Shared soulful qualities, moving into neo-soul.'},{title:'Afro Blue',artist:'Robert Glasper ft. Erykah Badu',world:'rnb',why:'Jazz harmony enters, with a voice you already know.'},{title:'Black Classical Music',artist:'Yussef Dayes',world:'uk',why:'London jazz drumming: groove first, vocals gone.'},{title:'Water No Get Enemy',artist:'Fela Kuti',world:'afro',why:'The jazz road loops back to the roots of your Afrobeats.'}]);
+$('rgo').addEventListener('click',async()=>{const [t,ar]=$('rstart').value.split(' | ');const r=await ask(`Build a 5-step musical rabbit hole starting with "${t}" by ${ar} (step 1 is that song) and moving gradually into unfamiliar territory, each step one connected leap (shared producer, sample, vocal style, scene or influence).`,'{"steps":[{"title":"","artist":"","world":"rnb|trap|afro|uk","why":"the connection to the previous step"}]}',$('rstate'));
+ if(r&&Array.isArray(r.steps))drawPath(r.steps.slice(0,6).map(s=>({title:String(s.title||''),artist:String(s.artist||''),world:s.world,why:String(s.why||'')})))});
+// blind discovery
+const bpool=[...gems,...wild].map(s=>[s[0],s[1],s[2],s[3]]).concat(intl.map(s=>[s[0],s[1],s[2],s[4]]),exp.map(s=>[s[0],s[1],s[2],s[4]]));let bi=Math.floor(Math.random()*bpool.length),bn=24;
+const drawBlind=rev=>{const s=bpool[bi%bpool.length];
+ $('blindcard').innerHTML=`<div class="bcover" style="${rev?`background:${coverBg(s[0]+s[1],s[2])};color:#fff`:''}">${rev?'':'?'}</div><div><div class="eyebrow">Unknown track #${String(bn).padStart(3,'0')}</div>
+ ${rev?`<h2 style="font-size:clamp(28px,4vw,40px)">${esc(s[0])}</h2><p class="ca" style="font-size:17px">${esc(s[1])} · ${WN[s[2]]}</p><p class="why" style="font-size:15px">${esc(s[3])}</p><div class="acts"><a class="mini" href="${apple(s[0],s[1])}" target="_blank" rel="noopener">${play}&nbsp;Apple</a><a class="mini" href="${ytm(s[0]+' '+s[1])}" target="_blank" rel="noopener">${play}&nbsp;YouTube</a></div><div class="quick"><button class="btn pri" id="bnext" type="button">Next unknown track</button></div>`
+ :`<h2 style="font-size:clamp(28px,4vw,40px)">Artist hidden</h2><p class="note" style="font-size:15px">Genre hidden · Popularity hidden</p><div class="acts"><a class="mini" href="${ytm(s[0]+' '+s[1])}" target="_blank" rel="noopener">${play}&nbsp;Listen (look away)</a></div><div class="bopts">${[['love','I absolutely love this'],['good',"Good, not a favourite"],['mood','Only in certain moods'],['no','Not my taste']].map(o=>`<button type="button" data-br="${o[0]}">${o[1]}</button>`).join('')}</div>`}</div>`};
+$('blindcard').addEventListener('click',e=>{const b=e.target.closest('[data-br]');if(b){const s=bpool[bi%bpool.length];saveRate(key(s[0],s[1]),{title:s[0],artist:s[1],rating:b.dataset.br,label:RATE.find(r=>r[0]===b.dataset.br)[1],list:'blind',at:new Date().toISOString()});drawBlind(true);refreshIntel()}
+ if(e.target.closest('#bnext')){bi++;bn++;drawBlind(false)}});drawBlind(false);
+// hall of fame
+const TIERS=[['S+','#ffbe3d'],['S','#ff4f87'],['A','#9d7bff'],['B','#2fd3bd'],['C','#8a8190'],['D','#5a5260']];
+let tiers={};try{tiers=JSON.parse(localStorage.getItem('lyra-t')||'{}')}catch(_){}
+const saveTier=async(k,rec)=>{tiers[k]=rec;try{localStorage.setItem('lyra-t',JSON.stringify(tiers))}catch(_){}if(DB){try{await DB.collection('tiers').doc(did(k)).set(rec)}catch(_){}}};
+const tierSel=s=>{const k=key(s.t,s.a),v=(tiers[k]||{}).tier||'';return `<select class="rate${v?' set':''}" data-tk="${esc(k)}" aria-label="Tier for ${esc(s.t)}"><option value="">Unranked</option>${TIERS.map(t=>`<option${t[0]===v?' selected':''}>${t[0]}</option>`).join('')}</select>`};
+const drawTiers=()=>{$('tiers').innerHTML=TIERS.map(([t,c])=>{const songs=Object.entries(tiers).filter(([k,v])=>v.tier===t);return `<div class="tier"><b style="background:${c}">${t}</b><div class="chips">${songs.length?songs.slice(0,8).map(([k,v])=>`<span class="chip">${esc(v.title)}</span>`).join('')+(songs.length>8?`<span class="note">+${songs.length-8}</span>`:''):'<span class="empty">Nothing here yet</span>'}</div></div>`}).join('');
+ const wins=Object.values(tiers).filter(v=>v.wins).sort((x,y)=>(y.wins-(y.losses||0))-(x.wins-(x.losses||0)));
+ const arts={};Object.values(tiers).forEach(v=>{if(v.tier==='S+'||v.tier==='S')arts[v.artist]=(arts[v.artist]||0)+(v.tier==='S+'?2:1)});
+ const loved=Object.values(fb).filter(v=>v.rating==='love'&&v.list!=='player');
+ const box=(t,d,items)=>`<div class="card"><h3>${t}</h3><p class="note" style="margin:-6px 0 10px">${d}</p><div class="chips">${items.length?items.map(x=>`<span class="chip">${esc(x)}</span>`).join(''):'<span class="note">Fills in as you rank and rate.</span>'}</div></div>`;
+ $('halls').innerHTML=box('Legendary artists','Most S and S+ songs.',Object.entries(arts).sort((a,b)=>b[1]-a[1]).slice(0,6).map(x=>x[0]))+box('Timeless tracks','Your S+ songs and battle champions.',[...new Set(Object.values(tiers).filter(v=>v.tier==='S+').map(v=>v.title).concat(wins.slice(0,4).map(v=>v.title)))].slice(0,8))+box('Discovery awards','New songs you rated "absolutely love".',loved.slice(0,8).map(v=>v.title))+`<div class="card"><h3>Lost classics</h3><p class="note">Songs you haven't played in a long time. Unlocks when your listening history arrives.</p></div>`};
+const runRank=()=>{const q=$('hq').value.trim().toLowerCase();$('ranklist').innerHTML=lib.filter(s=>!q||(s.t+' '+s.a).toLowerCase().includes(q)).slice(0,q?60:20).map(s=>`<div class="rk"><span><b style="font-weight:600">${esc(s.t)}</b> <span class="ca">${esc(s.a)}</span></span>${tierSel(s)}</div>`).join('')+(q?'':'<p class="note">Showing 20. Search to find any song.</p>')};
+$('hq').addEventListener('input',runRank);
+document.addEventListener('change',e=>{const s=e.target.closest('select[data-tk]');if(!s)return;const k=s.dataset.tk,[t,a]=k.split(' | ');s.classList.toggle('set',!!s.value);saveTier(k,{...(tiers[k]||{}),title:t,artist:a,tier:s.value,at:new Date().toISOString()});drawTiers()});
+let pair=[];const newBattle=()=>{const i=Math.floor(Math.random()*lib.length);let j=Math.floor(Math.random()*lib.length);if(j===i)j=(j+1)%lib.length;pair=[lib[i],lib[j]];
+ $('battle').innerHTML=pair.map((s,n)=>`<button type="button" data-win="${n}"><div class="bc" style="background:${coverBg(s.t+s.a,s.g)}"></div><b>${esc(s.t)}</b><div class="ca">${esc(s.a)}</div></button>`).join('<div class="vs">VS</div>')};
+$('battle').addEventListener('click',e=>{const b=e.target.closest('[data-win]');if(!b)return;const w=pair[+b.dataset.win],l=pair[1-b.dataset.win];const kw=key(w.t,w.a),kl=key(l.t,l.a);
+ saveTier(kw,{...(tiers[kw]||{title:w.t,artist:w.a,tier:''}),wins:((tiers[kw]||{}).wins||0)+1});saveTier(kl,{...(tiers[kl]||{title:l.t,artist:l.a,tier:''}),losses:((tiers[kl]||{}).losses||0)+1});drawTiers();newBattle()});
+newBattle();drawTiers();runRank();
+// passport
+const REG=[['United States','R&B and hip-hop','#ff4f87',['rnb','trap'],[]],['Nigeria','Afrobeats and street-pop','#ffbe3d',['afro'],[]],['United Kingdom','Underground rap and garage','#2fd3bd',['uk'],[]],['South Africa','Amapiano and Afro-house','#ffbe3d',[],['South Africa']],['Ghana','Drill and highlife','#ffbe3d',[],['Ghana']],['France','French R&B and rap','#9d7bff',[],['France']],['Jamaica','Dancehall','#2fd3bd',[],['Jamaica']],['Tanzania','Bongo Flava','#ffbe3d',[],['Tanzania']],['Ethiopia','Ethio-jazz','#ff4f87',[],[]],['Brazil','Samba-soul and MPB','#2fd3bd',[],[]]];
+const drawPP=()=>{const rated=Object.values(fb);$('pp').innerHTML=REG.map(r=>{const base=r[3].length?Math.round(100*lib.filter(s=>r[3].includes(s.g)).length/lib.length*1.6+30):0;
+ const songs=intl.filter(s=>r[4].includes(s[3])).concat(r[0]==='Ethiopia'?[wild[1].slice(0,3).concat('Ethiopia')]:r[0]==='Brazil'?[wild[5].slice(0,3).concat('Brazil')]:[]);
+ const got=songs.filter(s=>fb[key(s[0],s[1])]).length;const pct=Math.min(100,base+got*30);const open=pct>0;
+ return `<div class="stamp${open?'':' locked'}" style="--c:${r[2]}"><div class="st">${esc(r[0].split(' ').map(w=>w[0]).join(''))}<br>${open?'Visited':'Locked'}</div><b>${esc(r[0])}</b><p>${esc(r[1])}</p><div class="track"><div class="fill" style="width:${Math.max(2,pct)}%;background:${r[2]}"></div></div><div class="note" style="margin-top:6px">${pct}% explored</div>${songs.length?`<div class="acts" style="margin-top:10px">${songs.slice(0,1).map(s=>`<a class="mini" href="${apple(s[0],s[1])}" target="_blank" rel="noopener">Try ${esc(s[0])}</a>`).join('')}</div>`:''}</div>`}).join('');
+ $('trip').innerHTML=`<small>December trip</small><h3>South Africa: from amapiano to Afro-house</h3><p class="note" style="font-size:15px;color:#eee">Starts with Davido on Ke Star (Remix), so it's linked to your Afro playlist, then moves into Black Coffee and Tyla. Rate a song to collect the stamp.</p><div class="quick">${[intl[1],exp.find(x=>x[1].startsWith('Black Coffee')),exp.find(x=>x[1]==='Tyla')].filter(Boolean).map(s=>`<a class="qbtn" href="${apple(s[0],s[1])}" target="_blank" rel="noopener">${esc(s[0])}</a>`).join('')}</div>`};drawPP();
+// newspaper
+$('pdate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const drawPaper=p=>{const st=Array.isArray(p.stories)?p.stories.slice(0,4):[];const ch=arr=>(Array.isArray(arr)?arr:[]).slice(0,4).map(s=>`<a class="chip" href="${apple(String(s.title||''),String(s.artist||''))}" target="_blank" rel="noopener">${esc(s.title)} – ${esc(s.artist)}</a>`).join('');
+ $('paper').innerHTML=`<div class="lead"><div><div class="kick2">${esc(p.kicker||'Cover story')}</div><h3>${esc(p.headline)}</h3><p>${esc(p.lede)}</p><div class="chips">${ch(p.songs)}</div></div><div class="leadart" style="background:${coverBg(String(p.headline),'rnb')}"></div></div><div class="cols">${st.map(s=>`<div class="col"><div class="kick2">${esc(s.section)}</div><h4>${esc(s.title)}</h4><p>${esc(s.body)}</p><div class="chips">${ch(s.songs)}</div></div>`).join('')}</div>`};
+drawPaper({kicker:'Cover story',headline:'Is alté your next musical era?',lede:"Your Afrobeats side leans romantic and smooth: Essence, Confession, Mad Over You. Alté takes that softness further, with dreamier production, R&B vocals and a left-field edge. If you love Wizkid's quieter songs and the airiness of Aaliyah, this is the bridge.",songs:[{title:'Sad Girlz Luv Money',artist:'Amaarae'},{title:'Free Mind',artist:'Tems'},{title:'Soweto',artist:'Victony'}],
+ stories:[{section:'The Underground Report',title:"London's melodic underground keeps digging deeper",body:'Your UK picks (Trezz0, Lay8om, Beezo, Loyal DTM) share one thing: melody over aggression. Knucks and Fredo sit at the more polished end of that same lane.',songs:[{title:'Leon the Professional',artist:'Knucks'},{title:'Netflix & Chill',artist:'Fredo'}]},
+ {section:'From the Archives',title:'The record behind Ex-Factor',body:"Lauryn Hill built Ex-Factor on Wu-Tang Clan's Can It Be All So Simple, which itself flips Gladys Knight & the Pips. Twenty years later Cardi B rebuilt Ex-Factor again for Be Careful.",songs:[{title:'Can It Be All So Simple',artist:'Wu-Tang Clan'},{title:'Be Careful',artist:'Cardi B'}]},
+ {section:'Sample Detective',title:"Memphis is everywhere in today's trap",body:"Moneybagg Yo, Key Glock and Pooh Shiesty all draw on the dark, lo-fi sound of 90s Memphis tapes from Three 6 Mafia's world. Stay Fly is the bridge between then and now.",songs:[{title:'Stay Fly',artist:'Three 6 Mafia'}]},
+ {section:'Lyra recommends',title:'One song, five paths: Essence',body:'From Essence you can go to Tems (soul), Amaarae (alté), Tyla (amapiano-pop), Jorja Smith (UK R&B) or Sade (quiet storm). Each one keeps the same slow-burn feeling.',songs:[{title:'No Ordinary Love',artist:'Sade'},{title:'Water',artist:'Tyla'}]}]});
+$('pgo').addEventListener('click',async()=>{const r=await ask('Write a new edition of their personal music newspaper "The Resonance Times". Use music history, artist stories, samples and taste insights (not current news, which you cannot verify). One cover story and four short stories in sections like The Underground Report, From the Archives, Sample Detective, Across Generations. Each story under 70 words with 1 to 3 real songs.','{"kicker":"","headline":"","lede":"","songs":[{"title":"","artist":""}],"stories":[{"section":"","title":"","body":"","songs":[{"title":"","artist":""}]}]}',$('pstate'));if(r&&r.headline)drawPaper(r)});
+// intelligent replay
+const refreshIntel=()=>{const v=Object.values(fb).filter(x=>x.list!=='player');const recs=v.filter(x=>!['daily'].includes(x.list)||true);
+ const pos=v.filter(x=>['love','good'].includes(x.rating)).length,cnt=v.length;$('acc').textContent=cnt?Math.round(100*pos/cnt)+'%':'–';$('accn').textContent=cnt?`${pos} of ${cnt} rated recommendations landed.`:'Rate recommended songs to measure this.';
+ const byA={};v.filter(x=>x.rating==='love').forEach(x=>{byA[x.artist]=(byA[x.artist]||0)+1});const ob=Object.entries(byA).filter(x=>x[1]>=2).sort((a,b)=>b[1]-a[1]);
+ $('obs').innerHTML=ob.length?ob.slice(0,3).map(([a,n])=>`<div style="margin:6px 0"><b>${esc(a)}</b> <span class="note">${n} loved songs</span></div>`).join(''):'No obsession detected yet. Love a few songs by the same artist and it shows up here.';
+ const ft=v.filter(x=>['later','mood'].includes(x.rating));$('fat').innerHTML=ft.length?ft.slice(0,4).map(x=>`<div style="margin:6px 0"><b>${esc(x.title)}</b> <span class="note">${esc(x.label)}</span></div>`).join(''):'Nothing wearing thin yet. Songs you mark "another chance later" or "only in moods" show up here.';
+ const wl={};v.filter(x=>['love','good'].includes(x.rating)).forEach(x=>{const r=allRecs.find(s=>s[0]===x.title&&s[1]===x.artist);if(r)wl[r[2]]=(wl[r[2]]||0)+1});const topW=Object.entries(wl).sort((a,b)=>b[1]-a[1])[0];
+ const sur=v.find(x=>x.rating==='love'&&['wildcard','lab','fusion','rabbit','blind','international'].some(l=>String(x.list).startsWith(l)));
+ const Qs=[['What changed?',topW?`Your ratings lean toward ${WN[topW[0]]} this week.`:'Week 1 is your baseline: all four worlds start level.'],['What surprised me?',sur?`You loved ${sur.title} by ${sur.artist}, from outside your comfort zone.`:'Nothing yet. Try Blind Discovery or the Experimental Lab.'],['What stayed consistent?','Melody, deep bass and emotional vocals, across every world.'],['What am I losing interest in?',ft.length?`${ft.length} song${ft.length>1?'s':''} marked for later or only certain moods.`:'Nothing so far.'],['What should I explore next?','Alté and amapiano: the closest unexplored ground to your Afro side.'],['How well does Lyra understand me?',cnt?`${Math.round(100*pos/cnt)}% of rated picks landed.`:'Not measured yet. Rate a few picks.'],['Am I becoming more diverse?',`${Object.keys(wl).length||0} of 4 worlds have loved picks so far.`]];
+ $('questions').innerHTML=Qs.map(q=>`<div class="q"><b>${q[0]}</b><p>${esc(q[1])}</p></div>`).join('');drawPP();drawTiers();drawFuture()};
+document.addEventListener('change',e=>{if(e.target.closest('select.rate:not([data-tk])'))setTimeout(refreshIntel,50)});refreshIntel();
+// load tiers from db
+(async()=>{try{const c=window.claude&&await window.claude.use('db');if(!c)return;const snap=await c.collection('tiers').get();const docs=(snap&&(snap.docs||snap))||[];for(const d of docs){const v=typeof d.data==='function'?d.data():(d.data||d);if(v&&v.title)tiers[key(v.title,v.artist)]=v}drawTiers();runRank();refreshIntel()}catch(_){}})();
+
+// ---------- web playback (iTunes previews + Apple Music embed) ----------
+const aud=$('aud');const cache={};let reqN=0;
+const fmt=s=>isFinite(s)?Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'):'0:30';
+const lookup=(t,a)=>{const k=t+'|'+a;if(cache[k])return Promise.resolve(cache[k]);return new Promise(res=>{const cb='itcb'+(++reqN);const sc=document.createElement('script');const done=v=>{delete window[cb];sc.remove();cache[k]=v;res(v)};
+ window[cb]=d=>{const r=(d&&d.results)||[];const al=a.toLowerCase().split(/ ft\.| & |,/)[0].trim();done(r.find(x=>(x.artistName||'').toLowerCase().includes(al))||r[0]||null)};
+ sc.onerror=()=>done(null);setTimeout(()=>{if(window[cb])done(null)},8000);
+ sc.src='https://itunes.apple.com/search?entity=song&limit=5&country=gb&callback='+cb+'&term='+encodeURIComponent(t+' '+a.replace(/ ft\..*/,''));document.head.appendChild(sc)})};
+const setIcon=p=>{$('picon').innerHTML=p?'<rect x="3" y="2" width="3" height="10" fill="currentColor"/><rect x="8" y="2" width="3" height="10" fill="currentColor"/>':'<path d="M3 1.5v11l9-5.5z" fill="currentColor"/>';$('pplay').setAttribute('aria-label',p?'Pause':'Play')};
+let curTrack=null;
+const loadTrack=async(auto)=>{if(NI<0)return;const [t,a]=Q[NI];const me=NI;$('full').innerHTML='<span class="note">Finding the song...</span>';
+ const r=await lookup(t,a);if(me!==NI)return;curTrack=r;
+ if(!r){$('full').innerHTML='<span class="note">Not found on Apple Music. Try YouTube.</span>';aud.removeAttribute('src');setIcon(false);return}
+ $('full').innerHTML=`<iframe allow="autoplay *; encrypted-media *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/gb/song/${encodeURIComponent(String(r.trackId))}" title="Apple Music player"></iframe><span class="note">Full song plays here when you're signed in to Apple Music.</span>`;
+ if(r.artworkUrl100){const art=`url("${String(r.artworkUrl100).replace('100x100','600x600')}") center/cover`;$('part').style.background=art;$('nart2').style.background=art}
+ if(r.previewUrl){aud.src=r.previewUrl;if(auto){try{await aud.play()}catch(_){setIcon(false)}}}};
+const _setNow=setNow;setNow=(i,auto)=>{_setNow(i);aud.pause();setIcon(false);$('pfill').style.width='0';$('pcur').textContent='0:00';loadTrack(auto)};
+$('pplay').addEventListener('click',async()=>{if(!aud.src){await loadTrack(true);return}if(aud.paused){try{await aud.play()}catch(_){}}else aud.pause()});
+aud.addEventListener('play',()=>setIcon(true));aud.addEventListener('pause',()=>setIcon(false));
+aud.addEventListener('timeupdate',()=>{$('pfill').style.width=(100*aud.currentTime/(aud.duration||30))+'%';$('pcur').textContent=fmt(aud.currentTime);$('pdur').textContent=fmt(aud.duration)});
+aud.addEventListener('ended',()=>setNow(NI+1,true));
+$('pbar').addEventListener('click',e=>{const r=$('pbar').getBoundingClientRect();if(aud.duration)aud.currentTime=aud.duration*(e.clientX-r.left)/r.width});
+document.addEventListener('keydown',e=>{if(e.code==='Space'&&!e.target.closest('input,textarea,select,button')){e.preventDefault();$('pplay').click()}});
+// ---------- search any song ----------
+const itunes=(term,limit)=>new Promise(res=>{const cb='its'+(++reqN);const sc=document.createElement('script');const done=v=>{delete window[cb];sc.remove();res(v)};
+ window[cb]=d=>done((d&&d.results)||[]);sc.onerror=()=>done(null);setTimeout(()=>{if(window[cb])done(null)},9000);
+ sc.src='https://itunes.apple.com/search?media=music&entity=song&country=gb&limit='+limit+'&callback='+cb+'&term='+encodeURIComponent(term);document.head.appendChild(sc)});
+const gOf=x=>{const g=String(x.primaryGenreName||'').toLowerCase();return /afro|african|world/.test(g)?'afro':/hip|rap/.test(g)?'trap':/uk|grime|drill/.test(g)?'uk':'rnb'};
+let SR=[];
+const doSearch=async term=>{term=term.trim();if(!term)return;go('search');window.scrollTo({top:0});$('sh').textContent='Results for "'+term+'"';$('ss').textContent='Searching Apple Music...';$('sres').innerHTML='';
+ const libHits=lib.filter(s=>(s.t+' '+s.a).toLowerCase().includes(term.toLowerCase()));
+ $('slibh').hidden=!libHits.length;$('slib').innerHTML=libHits.slice(0,12).map(s=>cd(s.t,s.a,s.g,'')).join('');
+ const r=await itunes(term,30);
+ if(r===null){$('ss').textContent="Couldn't reach Apple Music. Check your connection and try again.";return}
+ SR=r.filter(x=>x.trackName&&x.artistName);$('ss').textContent=SR.length?`${SR.length} songs. Tap a cover to play.`:'No songs found. Try a different spelling.';
+ $('sres').innerHTML=SR.map((x,i)=>{cache[x.trackName+'|'+x.artistName]=x;const art=x.artworkUrl100?String(x.artworkUrl100).replace('100x100','400x400'):'';
+  return cd(x.trackName,x.artistName,gOf(x),esc([x.collectionName,(x.releaseDate||'').slice(0,4)].filter(Boolean).join(' · ')),{list:'search',tag:x.primaryGenreName||'Song'}).replace('<i style="background:',`<i data-art="${esc(art)}" style="background:`)}).join('');
+ document.querySelectorAll('#sres i[data-art]').forEach(el=>{const u=el.dataset.art;if(u.startsWith('https://'))el.style.background=`url("${u}") center/cover`})};
+$('sform').addEventListener('submit',e=>{e.preventDefault();e.stopImmediatePropagation();doSearch($('gsearch').value)},true);
+
+setNow(0,false);
+}
+</script>
+</body></html>
