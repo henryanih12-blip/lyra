@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Lyra</title>
+<script src="token.js"></script>
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#040205">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -895,7 +896,7 @@ const lookup=(t,a)=>{const k=t+'|'+a;if(cache[k])return Promise.resolve(cache[k]
  sc.src='https://itunes.apple.com/search?entity=song&limit=5&country=gb&callback='+cb+'&term='+encodeURIComponent(t+' '+a.replace(/ ft\..*/,''));document.head.appendChild(sc)})};
 const setIcon=p=>{$('picon').innerHTML=p?'<rect x="3" y="2" width="3" height="10" fill="currentColor"/><rect x="8" y="2" width="3" height="10" fill="currentColor"/>':'<path d="M3 1.5v11l9-5.5z" fill="currentColor"/>';$('pplay').setAttribute('aria-label',p?'Pause':'Play')};
 let curTrack=null;
-const loadTrack=async(auto)=>{if(NI<0)return;const [t,a]=Q[NI];const me=NI;$('full').innerHTML='<span class="note">Finding the song...</span>';
+let loadTrack=async(auto)=>{if(NI<0)return;const [t,a]=Q[NI];const me=NI;$('full').innerHTML='<span class="note">Finding the song...</span>';
  const r=await lookup(t,a);if(me!==NI)return;curTrack=r;
  if(!r){$('full').innerHTML='<span class="note">Not found on Apple Music. Try YouTube.</span>';aud.removeAttribute('src');setIcon(false);return}
  const emb=`<iframe allow="autoplay *; encrypted-media *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/gb/song/${encodeURIComponent(String(r.trackId))}" title="Apple Music full song player"></iframe>`;if(!$('sheet').hidden){$('sfull').innerHTML=emb;$('appopen').href=String(r.trackViewUrl||'').startsWith('https://')?r.trackViewUrl:apple(t,a)}else $('sfull').dataset.emb='1';
@@ -928,6 +929,26 @@ const doSearch=async term=>{term=term.trim();if(!term)return;go('search');window
   return cd(x.trackName,x.artistName,gOf(x),esc([x.collectionName,(x.releaseDate||'').slice(0,4)].filter(Boolean).join(' · ')),{list:'search',tag:x.primaryGenreName||'Song'}).replace('<i style="background:',`<i data-art="${esc(art)}" style="background:`)}).join('');
  document.querySelectorAll('#sres i[data-art]').forEach(el=>{const u=el.dataset.art;if(u.startsWith('https://'))el.style.background=`url("${u}") center/cover`})};
 $('sform').addEventListener('submit',e=>{e.preventDefault();e.stopImmediatePropagation();doSearch($('gsearch').value)},true);
+
+// ---------- Apple MusicKit (full songs in-page, needs developer token in token.js) ----------
+let MK=null;
+const mkReady=()=>MK&&MK.isAuthorized;
+if(window.LYRA_TOKEN){const s=document.createElement('script');s.src='https://js-cdn.music.apple.com/musickit/v3/musickit.js';s.async=true;document.head.appendChild(s);
+ document.addEventListener('musickitloaded',async()=>{try{await MusicKit.configure({developerToken:window.LYRA_TOKEN,app:{name:'Lyra',build:'1.0'}});MK=MusicKit.getInstance();
+  $('fullbtn').textContent=MK.isAuthorized?'Apple Music on':'Connect Apple Music';
+  MK.addEventListener('playbackStateDidChange',()=>setIcon(MK.playbackState===2));
+  MK.addEventListener('playbackTimeDidChange',()=>{const d=MK.currentPlaybackDuration||0,c=MK.currentPlaybackTime||0;$('pfill').style.width=(d?100*c/d:0)+'%';$('pcur').textContent=fmt(c);$('pdur').textContent=fmt(d)});
+  MK.addEventListener('mediaItemDidChange',()=>{});
+  MK.addEventListener('playbackStateDidChange',()=>{if(MK.playbackState===10)setNow(NI+1,true)});
+ }catch(e){console.log('MusicKit failed',e)}})}
+const mkPlay=async()=>{if(!curTrack||!curTrack.trackId)return false;try{await MK.setQueue({song:String(curTrack.trackId),startPlaying:true});aud.pause();return true}catch(_){return false}};
+const _load=loadTrack;loadTrack=async auto=>{await _load(auto&&!mkReady());if(auto&&mkReady())mkPlay()};
+const _pp=$('pplay');const pp=_pp.cloneNode(true);_pp.replaceWith(pp);
+pp.addEventListener('click',async()=>{if(mkReady()){if(MK.playbackState===2)MK.pause();else if(MK.nowPlayingItem&&curTrack&&String(MK.nowPlayingItem.id)===String(curTrack.trackId))MK.play();else{if(!curTrack)await _load(false);mkPlay()}return}
+ if(!aud.src){await loadTrack(true);return}if(aud.paused){try{await aud.play()}catch(_){}}else aud.pause()});
+const _fb=$('fullbtn');const fbn=_fb.cloneNode(true);_fb.replaceWith(fbn);
+fbn.addEventListener('click',async()=>{if(MK){if(!MK.isAuthorized){try{await MK.authorize()}catch(_){}}fbn.textContent=MK.isAuthorized?'Apple Music on':'Connect Apple Music';if(MK.isAuthorized)mkPlay();return}
+ setApp();const s=$('sheet');s.hidden=!s.hidden;fbn.setAttribute('aria-expanded',String(!s.hidden));if(!s.hidden){aud.pause();$('sfull').innerHTML=curTrack?`<iframe allow="autoplay *; encrypted-media *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/gb/song/${encodeURIComponent(String(curTrack.trackId))}" title="Apple Music full song player"></iframe>`:'<p class="note">Pick a song first.</p>'}else $('sfull').innerHTML=''});
 
 setNow(0,false);
 }

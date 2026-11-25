@@ -1,0 +1,1 @@
+window.LYRA_TOKEN='';
