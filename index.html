@@ -257,21 +257,86 @@ body{background:#000}
 .pl-l{cursor:pointer}.pl-art{background-size:cover!important;box-shadow:0 8px 20px -6px #000}
 .player{background:rgba(24,18,28,.72);backdrop-filter:blur(30px) saturate(1.6);-webkit-backdrop-filter:blur(30px) saturate(1.6)}
 .nart{background-size:cover!important}
-/* full-screen player */
-.fsp{position:fixed;inset:0;z-index:60;background:#0a060c;overflow-y:auto;animation:up .45s cubic-bezier(.2,.8,.2,1) both}.fsp[hidden]{display:none}
+/* full-screen now playing + lyrics */
+.fsp{position:fixed;inset:0;z-index:60;background:#07040a;overflow:hidden;animation:up .5s cubic-bezier(.2,.8,.2,1) both;color:#fff;--lc:color-mix(in srgb,var(--acc) 55%,#000)}.fsp[hidden]{display:none}
 @keyframes up{from{transform:translateY(100%)}}
-.fsbg{position:fixed;inset:-20%;background:#120a16 center/cover;filter:blur(70px) saturate(1.8) brightness(.55);transform:scale(1.2)}
-.fsin{position:relative;max-width:520px;margin:0 auto;padding:18px 22px 40px;display:flex;flex-direction:column;gap:18px;min-height:100%}
-.fsclose{align-self:center;width:56px;height:36px;border:0;border-radius:999px;background:#ffffff1a;color:#fff;display:grid;place-items:center;cursor:pointer}
-.fsart{width:100%;aspect-ratio:1;border-radius:22px;background:#ffffff10 center/cover;box-shadow:0 40px 80px -30px #000;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
-.fsp.paused .fsart{transform:scale(.88)}
-.fsmeta{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}.fst{font:800 clamp(22px,6vw,28px)/1.1 Unbounded,sans-serif}.fsa{color:#ffffffb0;font-size:17px;margin-top:4px}
-.fsbar{height:7px;border-radius:4px;background:#ffffff30;position:relative;cursor:pointer}.fsbar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:#fff}
-.fstimes{display:flex;justify-content:space-between;font-size:12px;color:#ffffffa0;margin-top:6px}
-.fsctl{display:flex;justify-content:space-around;align-items:center}.pb.big{width:64px;height:64px;color:#fff}
-.fsplay{width:84px;height:84px;border-radius:50%;border:0;background:#fff;color:#000;display:grid;place-items:center;cursor:pointer;box-shadow:0 14px 30px -10px #000}
-.fsacts{display:flex;gap:10px;justify-content:center}.fsacts .btn{background:#ffffff1f;border-color:#ffffff2a;min-height:44px}
-.fsq{background:#0000003a;border-radius:20px;padding:14px}
+.fsbg{position:absolute;inset:-25%;background:#120a16 center/cover;filter:blur(80px) saturate(2) brightness(.5);transform:scale(1.25);animation:drift 30s ease-in-out infinite alternate}
+@keyframes drift{to{transform:scale(1.45) rotate(8deg)}}
+.fsveil{position:absolute;inset:0;background:radial-gradient(120% 70% at 50% 0%,transparent,#0008 70%),linear-gradient(#0000 55%,#000a)}
+.fsin{position:relative;height:100%;max-width:1180px;margin:0 auto;padding:calc(10px + env(safe-area-inset-top)) 22px calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}
+.fstop{display:flex;align-items:center;justify-content:space-between;gap:10px;flex:none}
+.fsic{width:44px;height:44px;border:0;border-radius:50%;background:#ffffff14;color:#fff;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(10px)}.fsic:hover{background:#ffffff26}
+.fsic[aria-pressed=true]{background:#fff;color:#000}
+.fsseg{display:flex;background:#0000004d;border-radius:999px;padding:4px;backdrop-filter:blur(14px)}
+.fsseg button{border:0;background:none;color:#ffffffa8;font:700 14px Inter,sans-serif;padding:9px 20px;border-radius:999px;cursor:pointer;transition:.25s}
+.fsseg button[aria-pressed=true]{background:#ffffff26;color:#fff}
+.fsstage{flex:1;min-height:0;display:flex;flex-direction:column;gap:14px}
+.fshero{display:grid;grid-template-columns:1fr;justify-items:center;gap:16px;transition:all .5s cubic-bezier(.2,.8,.2,1);flex:none}
+.fsart{width:min(100%,44vh,520px);aspect-ratio:1;border-radius:24px;background:#ffffff10 center/cover;box-shadow:0 50px 90px -30px #000,0 0 0 1px #ffffff14 inset;transition:all .55s cubic-bezier(.2,.8,.2,1)}
+.fsp.paused .fsart{transform:scale(.9);box-shadow:0 20px 50px -30px #000}
+.fsmeta{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;min-width:0}
+.fsmeta>div:first-child{min-width:0}
+.fst{font:800 clamp(21px,5.6vw,30px)/1.12 Unbounded,sans-serif;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fsa{color:#ffffffb0;font-size:16px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fsmeta>div:first-child{flex:1}.fsmeta #fsrate{flex:none}.fsmeta select{max-width:118px;background:#ffffff1a;border-color:#ffffff22;color:#fff}
+/* live lyric strip (song view) */
+.fstick{width:100%;border:0;text-align:left;cursor:pointer;color:#fff;background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 34%,#0000),#ffffff0d);border-radius:20px;padding:14px 16px;min-height:76px;display:flex;flex-direction:column;gap:4px;backdrop-filter:blur(20px);box-shadow:0 0 0 1px #ffffff14 inset;flex:none}
+.fstick small{font:700 11px Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#ffffffa0;display:flex;justify-content:space-between}
+.fstick b{font:700 18px/1.3 Inter,sans-serif;transition:opacity .3s}.fstick span{font:600 15px/1.3 Inter,sans-serif;color:#ffffff80}
+/* lyrics panel */
+.fslyr{display:none;flex:1;min-height:0;position:relative}
+.fslines{height:100%;overflow-y:auto;scrollbar-width:none;padding:24vh 4px 34vh;-webkit-mask:linear-gradient(#0000,#000 14%,#000 72%,#0000);mask:linear-gradient(#0000,#000 14%,#000 72%,#0000);overscroll-behavior:contain}
+.fslines::-webkit-scrollbar{display:none}
+.ll{display:block;width:100%;text-align:left;border:0;background:none;color:#fff;font:800 clamp(24px,6.4vw,38px)/1.22 Inter,sans-serif;letter-spacing:-.02em;padding:10px 0;margin:0;cursor:pointer;opacity:.32;filter:blur(.6px);transform-origin:left center;transition:opacity .45s,filter .45s,transform .45s cubic-bezier(.2,.8,.2,1)}
+.ll:hover{opacity:.6;filter:none}
+.ll.on{opacity:1;filter:none;transform:scale(1.03);text-shadow:0 0 30px color-mix(in srgb,var(--acc) 60%,transparent)}
+.ll.past{opacity:.5;filter:none}
+.ll.gap{font-size:28px;letter-spacing:.3em}
+.fslines.plain .ll{opacity:.92;filter:none;cursor:default;font-size:clamp(20px,5.4vw,30px)}
+.fslmsg{color:#ffffffb0;font:600 17px/1.5 Inter,sans-serif;padding:20px 4px}
+.fshint{position:absolute;left:50%;top:6px;transform:translateX(-50%);z-index:2;background:#000000a0;backdrop-filter:blur(14px);border:1px solid #ffffff22;color:#fff;font:600 13px Inter,sans-serif;padding:8px 14px;border-radius:999px;white-space:nowrap;cursor:pointer}
+.fshint[hidden]{display:none}
+.fssrc{position:absolute;right:0;bottom:4px;font:500 11px Inter,sans-serif;color:#ffffff60}
+/* dock */
+.fsdock{flex:none;display:flex;flex-direction:column;gap:10px}
+.fsbar{height:6px;border-radius:4px;background:#ffffff2e;position:relative;cursor:pointer;touch-action:none;transition:height .2s}.fsbar:hover,.fsbar.drag{height:10px}
+.fsbar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:#fff}
+.fsbar i:after{content:"";position:absolute;right:-7px;top:50%;width:14px;height:14px;margin-top:-7px;border-radius:50%;background:#fff;box-shadow:0 2px 8px #0008}
+.fstimes{display:flex;justify-content:space-between;font:600 12px Inter,sans-serif;color:#ffffff99;margin-top:7px;font-variant-numeric:tabular-nums}
+.fsctl{display:flex;justify-content:space-between;align-items:center;padding:0 2px}
+.fsctl .pb{width:52px;height:52px;color:#fff;border-radius:50%}.fsctl .pb.big{width:62px;height:62px}
+.fsctl .tog{color:#ffffff80}.fsctl .tog[aria-pressed=true]{color:var(--acc);position:relative}.fsctl .tog[aria-pressed=true]:after{content:"";position:absolute;bottom:6px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--acc)}
+.fsplay{width:76px;height:76px;border-radius:50%;border:0;background:#fff;color:#000;display:grid;place-items:center;cursor:pointer;box-shadow:0 14px 34px -10px #000;transition:transform .2s}.fsplay:active{transform:scale(.92)}
+.fsacts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.fsacts .btn{background:#ffffff17;border-color:#ffffff22;color:#fff;min-height:40px;border-radius:999px;padding:0 16px;font-size:14px}
+.fsacts .btn[aria-pressed=true]{background:#fff;color:#000}
+.fsq{position:absolute;left:0;right:0;bottom:0;max-height:70%;overflow:auto;z-index:5;background:#0d0910f0;backdrop-filter:blur(30px);border-radius:26px 26px 0 0;padding:16px 18px calc(24px + env(safe-area-inset-bottom));animation:up .35s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 60px #000a}
+.fsq[hidden]{display:none}
+/* lyrics view on phone: artwork shrinks to a header, lyrics fill the screen */
+.fsp.lyr .fshero{grid-template-columns:64px 1fr;justify-items:stretch;align-items:center;gap:14px}
+.fsp.lyr .fsart{width:64px;border-radius:12px;transform:none}
+.fsp.lyr .fst{font-size:19px}.fsp.lyr .fsa{font-size:14px;margin-top:2px}
+.fsp.lyr .fstick{display:none}.fsp.lyr .fslyr{display:block}
+.fsp.lyr .fsacts{display:none}
+@media (max-height:700px){.fsp:not(.lyr) .fsacts{display:none}.fsart{width:min(100%,38vh)}}
+/* wide screens: artwork left, lyrics right, always together */
+@media (min-width:900px){
+ .fsin{padding:22px 40px 26px}
+ .fsseg{display:none}
+ .fsbody{flex:1;min-height:0;display:grid;grid-template-columns:minmax(340px,440px) 1fr;gap:56px;align-items:stretch}
+ .fsleft{display:flex;flex-direction:column;justify-content:center;gap:22px;min-height:0}
+ .fsstage{flex:none}
+ .fshero,.fsp.lyr .fshero{grid-template-columns:1fr;justify-items:center;gap:18px}
+ .fsart,.fsp.lyr .fsart{width:min(100%,46vh);border-radius:24px}
+ .fsp.lyr .fst{font-size:26px}.fsp.lyr .fsa{font-size:16px}
+ .fstick,.fsp.lyr .fstick{display:none}
+ .fslyr,.fsp.lyr .fslyr{display:block;height:100%}
+ .fsacts,.fsp.lyr .fsacts{display:flex}
+ .ll{font-size:40px}
+ .fslines{padding:30vh 8px 40vh}
+}
+@media (max-width:899px){.fsbody{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px}.fsleft{display:contents}.fsstage{order:1;flex:1;justify-content:center}.fslyr{order:2}.fsdock{order:3}.fsp.lyr .fsstage{flex:none}.fsp.lyr .fslines{padding:14vh 4px 24vh}}
+@media (prefers-reduced-motion:reduce){.fsbg{animation:none}.ll,.fshero,.fsart{transition:none}}
 /* tab bar + more */
 .tabbar{display:none}
 .more{position:fixed;inset:0;z-index:55;background:#000a;backdrop-filter:blur(10px);display:flex;align-items:flex-end}.more[hidden]{display:none}
@@ -511,15 +576,34 @@ body{background:#000}
   <div class="sheet" id="sheet" hidden><div class="shead"><b>Full song</b><button class="pb" id="shclose" type="button" aria-label="Close">✕</button></div><a class="btn pri" id="appopen" href="https://music.apple.com" target="_blank" rel="noopener" style="width:100%;justify-content:center;min-height:48px;margin:8px 0">Play full song in the Music app</a><div id="sfull"></div><p class="note">The button opens the song in your Music app, where it plays in full. The player below only plays in full if this browser is signed in to Apple Music.</p></div>
 </div>
 <div class="fsp" id="fsp" hidden role="dialog" aria-label="Now playing">
-  <div class="fsbg" id="fsbg"></div>
+  <div class="fsbg" id="fsbg"></div><div class="fsveil"></div>
   <div class="fsin">
-    <button class="fsclose" id="fsclose" type="button" aria-label="Close now playing"><svg width="26" height="26" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg></button>
-    <div class="fsart" id="fsart"></div>
-    <div class="fsmeta"><div><div class="fst" id="fst"></div><div class="fsa" id="fsa"></div></div><div id="fsrate"></div></div>
-    <div class="fsprog"><div class="fsbar" id="fsbar"><i id="fsfill"></i></div><div class="fstimes"><span id="fscur">0:00</span><span id="fsdur">0:30</span></div></div>
-    <div class="fsctl"><button class="pb big" id="fsprev" type="button" aria-label="Previous"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M6 5v14M19 5l-10 7 10 7z" fill="currentColor" stroke="currentColor" stroke-width="2"/></svg></button><button class="fsplay" id="fsplay" type="button" aria-label="Play or pause"></button><button class="pb big" id="fsnext" type="button" aria-label="Next"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M18 5v14M5 5l10 7-10 7z" fill="currentColor" stroke="currentColor" stroke-width="2"/></svg></button></div>
-    <div class="fsacts"><button class="btn" id="fsfull" type="button">Full song</button><a class="btn" id="fsyt" href="#" target="_blank" rel="noopener">YouTube Music</a></div>
-    <div class="fsq"><div class="nlbl">Up next</div><ol class="queue" id="fsqueue"></ol></div>
+    <div class="fstop">
+      <button class="fsic" id="fsclose" type="button" aria-label="Close now playing"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg></button>
+      <div class="fsseg" role="group" aria-label="View"><button type="button" data-v="song" aria-pressed="true">Song</button><button type="button" data-v="lyr" aria-pressed="false">Lyrics</button></div>
+      <button class="fsic" id="fsqbtn" type="button" aria-label="Up next" aria-pressed="false"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 6h12M4 11h12M4 16h7M17 14v7l5-3.5z" stroke="currentColor" stroke-width="2" fill="currentColor" stroke-linecap="round"/></svg></button>
+    </div>
+    <div class="fsbody">
+      <div class="fsleft">
+        <div class="fsstage">
+          <div class="fshero" id="fshero"><div class="fsart" id="fsart"></div><div class="fsmeta"><div><div class="fst" id="fst"></div><div class="fsa" id="fsa"></div></div><div id="fsrate"></div></div></div>
+          <button class="fstick" id="fstick" type="button" aria-label="Open lyrics"><small><span>Lyrics</span><span id="fstst"></span></small><b id="fstk1">Finding lyrics...</b><span id="fstk2"></span></button>
+        </div>
+        <div class="fsdock">
+          <div class="fsprog"><div class="fsbar" id="fsbar" role="slider" aria-label="Seek" tabindex="0"><i id="fsfill"></i></div><div class="fstimes"><span id="fscur">0:00</span><span id="fsdur">0:30</span></div></div>
+          <div class="fsctl">
+            <button class="pb tog" id="fsshuf" type="button" aria-label="Shuffle" aria-pressed="false"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M3 7h3c4 0 6 10 10 10h4M3 17h3c1.6 0 2.8-1.6 3.9-3.6M13 9.6C14 8.2 15 7 16 7h4M17 4l3 3-3 3M17 14l3 3-3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <button class="pb big" id="fsprev" type="button" aria-label="Previous"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M6 5v14M19 5l-10 7 10 7z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button>
+            <button class="fsplay" id="fsplay" type="button" aria-label="Play or pause"></button>
+            <button class="pb big" id="fsnext" type="button" aria-label="Next"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M18 5v14M5 5l10 7-10 7z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button>
+            <button class="pb tog" id="fsrep" type="button" aria-label="Repeat song" aria-pressed="false"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M17 2l3 3-3 3M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3M20 13v2a4 4 0 0 1-4 4H4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </div>
+          <div class="fsacts"><button class="btn" id="fsfull" type="button">Full song</button><a class="btn" id="fsyt" href="#" target="_blank" rel="noopener">YouTube Music</a></div>
+        </div>
+      </div>
+      <div class="fslyr" id="fslyr"><button class="fshint" id="fshint" type="button" hidden>Tap the line you're hearing to sync</button><div class="fslines" id="fslines"></div><span class="fssrc" id="fssrc"></span></div>
+    </div>
+    <div class="fsq" id="fsqwrap" hidden><div class="shead"><b style="font:800 18px Unbounded,sans-serif">Up next</b><button class="pb" id="fsqclose" type="button" aria-label="Close up next">✕</button></div><ol class="queue" id="fsqueue"></ol></div>
   </div>
 </div>
 <nav class="tabbar" id="tabbar" aria-label="Main"></nav>
@@ -1054,19 +1138,75 @@ const amb=document.createElement('div');amb.className='amb';document.body.prepen
 const tint=u=>{amb.style.backgroundImage=`url("${u}")`;amb.classList.add('on');$('fsbg').style.backgroundImage=`url("${u}")`;
  const img=new Image();img.crossOrigin='anonymous';img.onload=()=>{try{const c=document.createElement('canvas');c.width=c.height=8;const x=c.getContext('2d');x.drawImage(img,0,0,8,8);const d=x.getImageData(0,0,8,8).data;let r=0,g=0,b=0,n=0;for(let i=0;i<d.length;i+=4){const mx=Math.max(d[i],d[i+1],d[i+2]),mn=Math.min(d[i],d[i+1],d[i+2]);if(mx-mn>30&&mx>60){r+=d[i];g+=d[i+1];b+=d[i+2];n++}}if(n){const k=Math.max(1,180/Math.max(r/n,g/n,b/n));document.documentElement.style.setProperty('--acc',`rgb(${Math.min(255,r/n*k|0)},${Math.min(255,g/n*k|0)},${Math.min(255,b/n*k|0)})`)}}catch(_){}};img.src=u};
 const _lt=loadTrack;loadTrack=async auto=>{await _lt(auto);const v=curTrack;const u=v&&big(v.artworkUrl100);if(u&&u.startsWith('https://')){tint(u);$('fsart').style.backgroundImage=`url("${u}")`;$('part').style.background=`url("${u}") center/cover`;$('nart2').style.background=`url("${u}") center/cover`}};
-// full-screen player
-const openFS=()=>{$('fsp').hidden=false;document.body.style.overflow='hidden';syncFS()};const closeFS=()=>{$('fsp').hidden=true;document.body.style.overflow=''};
+// full-screen now playing + synced lyrics
+const fsp=$('fsp');
+const openFS=()=>{fsp.hidden=false;document.body.style.overflow='hidden';syncFS();lyFollow=0;requestAnimationFrame(lyTick)};const closeFS=()=>{fsp.hidden=true;document.body.style.overflow='';$('fsqwrap').hidden=true};
+const setView=v=>{fsp.classList.toggle('lyr',v==='lyr');fsp.querySelectorAll('.fsseg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));lyIdx=-2;lyFollow=0};
+fsp.querySelector('.fsseg').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(b)setView(b.dataset.v)});
+$('fstick').addEventListener('click',()=>setView('lyr'));
 document.querySelector('.pl-l').addEventListener('click',openFS);$('nart2').addEventListener('click',openFS);$('nart2').style.cursor='pointer';
-$('fsclose').addEventListener('click',closeFS);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('fsp').hidden)closeFS()});
+$('fsclose').addEventListener('click',closeFS);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!fsp.hidden)closeFS()});
 $('fsplay').addEventListener('click',()=>$('pplay').click());$('fsprev').addEventListener('click',()=>$('prev').click());$('fsnext').addEventListener('click',()=>$('next').click());
 $('fsfull').addEventListener('click',()=>{closeFS();$('fullbtn').click()});
-$('fsbar').addEventListener('click',e=>{const r=$('fsbar').getBoundingClientRect();if(aud.duration)aud.currentTime=aud.duration*(e.clientX-r.left)/r.width});
-$('fsqueue').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(b)setNow(+b.dataset.q,true)});
-let lastNI=-2;const syncFS=()=>{if($('fsp').hidden)return;$('fsfill').style.width=$('pfill').style.width||'0';$('fscur').textContent=$('pcur').textContent;$('fsdur').textContent=$('pdur').textContent;
- const playing=$('pplay').getAttribute('aria-label')==='Pause';$('fsplay').innerHTML=playing?'<svg width="34" height="34" viewBox="0 0 14 14"><rect x="3" y="2" width="3" height="10" fill="currentColor"/><rect x="8" y="2" width="3" height="10" fill="currentColor"/></svg>':'<svg width="34" height="34" viewBox="0 0 14 14"><path d="M3.5 1.5v11l9-5.5z" fill="currentColor"/></svg>';$('fsp').classList.toggle('paused',!playing);
- if(lastNI!==NI&&NI>=0){lastNI=NI;const [t,a,g]=Q[NI];$('fst').textContent=t;$('fsa').textContent=a;$('fsyt').href=ytm(t+' '+a);$('fsrate').innerHTML=rateSel(t,a,'player');if(!$('fsart').style.backgroundImage)$('fsart').style.background=coverBg(t+a,g);$('fsqueue').innerHTML=$('queue').innerHTML}};
+const fsQ=on=>{$('fsqwrap').hidden=!on;$('fsqbtn').setAttribute('aria-pressed',String(on))};
+$('fsqbtn').addEventListener('click',()=>fsQ($('fsqwrap').hidden));$('fsqclose').addEventListener('click',()=>fsQ(false));
+$('fsqueue').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(b){fsQ(false);setNow(+b.dataset.q,true)}});
+// shuffle + repeat
+$('fsshuf').addEventListener('click',()=>{const on=$('fsshuf').getAttribute('aria-pressed')!=='true';$('fsshuf').setAttribute('aria-pressed',String(on));if(on&&NI>=0){const rest=Q.slice(NI+1).concat(Q.slice(0,NI));for(let i=rest.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[rest[i],rest[j]]=[rest[j],rest[i]]}Q=[Q[NI]].concat(rest);NI=0;
+ $('queue').innerHTML=Q.slice(1,7).map(([qt,qa,qg],k)=>`<li><button class="mrow" type="button" data-q="${k+1}"><i style="background:${coverBg(qt+qa,qg)}"></i><span><b>${esc(qt)}</b><small>${esc(qa)}</small></span></button></li>`).join('');$('fsqueue').innerHTML=$('queue').innerHTML;lastNI=0}});
+$('fsrep').addEventListener('click',()=>{const on=$('fsrep').getAttribute('aria-pressed')!=='true';$('fsrep').setAttribute('aria-pressed',String(on));aud.loop=on;if(MK)try{MK.repeatMode=on?1:0}catch(_){}});
+// time source: Apple Music (full song) when connected, otherwise the in-page preview
+const mkOn=()=>!!(MK&&MK.isAuthorized&&MK.nowPlayingItem&&curTrack&&String(MK.nowPlayingItem.id)===String(curTrack.trackId));
+const curT=()=>mkOn()?(MK.currentPlaybackTime||0):aud.currentTime;
+const seekTo=s=>{if(mkOn()){try{MK.seekToTime(s)}catch(_){}}else if(aud.duration)aud.currentTime=Math.max(0,Math.min(aud.duration-.2,s))};
+const durT=()=>mkOn()?(MK.currentPlaybackDuration||0):(aud.duration||30);
+// scrubbing
+{const bar=$('fsbar');let drag=false;const at=e=>{const r=bar.getBoundingClientRect();return Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))};
+ bar.addEventListener('pointerdown',e=>{drag=true;bar.classList.add('drag');bar.setPointerCapture(e.pointerId);$('fsfill').style.width=at(e)*100+'%'});
+ bar.addEventListener('pointermove',e=>{if(drag)$('fsfill').style.width=at(e)*100+'%'});
+ bar.addEventListener('pointerup',e=>{if(!drag)return;drag=false;bar.classList.remove('drag');seekTo(durT()*at(e))});
+ bar.addEventListener('keydown',e=>{if(e.key==='ArrowRight')seekTo(curT()+5);if(e.key==='ArrowLeft')seekTo(curT()-5)});
+ window._fsDrag=()=>drag}
+// swipe down to close (phone)
+{let y0=null;const top=fsp.querySelector('.fstop');const hero=$('fshero');[top,hero].forEach(el=>{el.addEventListener('touchstart',e=>{y0=e.touches[0].clientY},{passive:true});
+ el.addEventListener('touchmove',e=>{if(y0==null)return;const d=e.touches[0].clientY-y0;if(d>0){fsp.style.transform=`translateY(${d}px)`;fsp.style.transition='none'}},{passive:true});
+ el.addEventListener('touchend',e=>{if(y0==null)return;const d=e.changedTouches[0].clientY-y0;y0=null;fsp.style.transition='transform .3s';if(d>130){fsp.style.transform='translateY(100%)';setTimeout(()=>{closeFS();fsp.style.transform='';fsp.style.transition=''},300)}else fsp.style.transform=''})})}
+// lyrics (free, from LRCLIB)
+const LYC={};let LY=null,lyIdx=-2,lyOff=null,lyFollow=0,lyKey='';
+const lyClean=s=>String(s||'').replace(/\s*[\(\[](feat|ft|with|prod)[^\)\]]*[\)\]]/ig,'').replace(/\s+-\s+.*(remix|version|edit|live).*$/i,'').trim();
+const lyArtist=a=>String(a||'').split(/,| & | x | ft\.| feat\.| featuring /i)[0].trim();
+const parseLRC=s=>String(s||'').split('\n').map(l=>{const m=l.match(/^\[(\d+):(\d+(?:\.\d+)?)\](.*)$/);return m?{t:+m[1]*60+ +m[2],x:m[3].trim()}:null}).filter(Boolean);
+const lyGet=async(u)=>{try{const c=new AbortController();const tm=setTimeout(()=>c.abort(),9000);const r=await fetch(u,{signal:c.signal});clearTimeout(tm);if(!r.ok)return null;return await r.json()}catch(_){return null}};
+const getLyrics=async(t,a)=>{const k=t+'|'+a;if(LYC[k])return LYC[k];const tt=lyClean(t),aa=lyArtist(a);const B='https://lrclib.net/api/';
+ let list=await lyGet(B+'search?track_name='+encodeURIComponent(tt)+'&artist_name='+encodeURIComponent(aa));
+ if(!Array.isArray(list)||!list.length)list=await lyGet(B+'search?q='+encodeURIComponent(tt+' '+aa));
+ list=Array.isArray(list)?list:[];const best=list.find(x=>x.syncedLyrics)||list.find(x=>x.plainLyrics)||list.find(x=>x.instrumental);
+ const out=!best?{none:true}:best.instrumental&&!best.syncedLyrics&&!best.plainLyrics?{inst:true}:best.syncedLyrics?{sync:parseLRC(best.syncedLyrics)}:{plain:String(best.plainLyrics).split('\n')};
+ if(!list.length&&!best)out.err=true;LYC[k]=out;return out};
+const lyRender=()=>{const el=$('fslines');el.classList.remove('plain');$('fshint').hidden=true;$('fssrc').textContent='';
+ if(!LY){el.innerHTML='<p class="fslmsg">Finding lyrics...</p>';$('fstk1').textContent='Finding lyrics...';$('fstk2').textContent='';$('fstst').textContent='';return}
+ if(LY.sync&&LY.sync.length){el.innerHTML=LY.sync.map((l,i)=>`<button class="ll${l.x?'':' gap'}" type="button" data-i="${i}">${l.x?esc(l.x):'• • •'}</button>`).join('');$('fssrc').textContent='Lyrics: LRCLIB';
+  $('fshint').hidden=mkOn()||lyOff!=null;$('fstst').textContent=mkOn()||lyOff!=null?'Live':'Tap to sync';$('fstk1').textContent=LY.sync.find(l=>l.x)?.x||'';$('fstk2').textContent=(LY.sync.filter(l=>l.x)[1]||{}).x||'';return}
+ if(LY.plain){el.classList.add('plain');el.innerHTML=LY.plain.map(x=>x.trim()?`<p class="ll">${esc(x)}</p>`:'<p class="ll" style="padding:6px 0"></p>').join('');$('fssrc').textContent='Lyrics: LRCLIB';$('fstst').textContent='';const pl=LY.plain.filter(x=>x.trim());$('fstk1').textContent=pl[0]||'';$('fstk2').textContent=pl[1]||'';return}
+ const msg=LY.inst?'This one is instrumental. Just vibe.':'No lyrics found for this song yet.';el.innerHTML=`<p class="fslmsg">${msg}</p>`;$('fstk1').textContent=msg;$('fstk2').textContent='';$('fstst').textContent=''};
+const lyLoad=async()=>{if(NI<0)return;const [t,a]=Q[NI];const k=t+'|'+a;if(k===lyKey)return;lyKey=k;LY=null;lyOff=null;lyIdx=-2;lyRender();const r=await getLyrics(t,a);if(lyKey!==k)return;LY=r;lyRender();$('fslines').scrollTop=0};
+$('fslines').addEventListener('click',e=>{const b=e.target.closest('.ll[data-i]');if(!b||!LY||!LY.sync)return;const l=LY.sync[+b.dataset.i];
+ if(mkOn())seekTo(l.t);else{lyOff=l.t-aud.currentTime;$('fshint').hidden=true;$('fstst').textContent='Live'}lyFollow=0;lyIdx=-2});
+$('fshint').addEventListener('click',()=>{$('fshint').hidden=true});
+{const el=$('fslines');['wheel','touchmove'].forEach(ev=>el.addEventListener(ev,()=>{lyFollow=Date.now()+3500},{passive:true}))}
+const lyTick=()=>{if(fsp.hidden)return;requestAnimationFrame(lyTick);if(!LY||!LY.sync||!LY.sync.length)return;
+ const live=mkOn()||lyOff!=null;if(!live)return;const t=curT()+(mkOn()?0:lyOff)+.25;let i=-1;for(let n=0;n<LY.sync.length;n++){if(LY.sync[n].t<=t)i=n;else break}
+ if(i===lyIdx)return;lyIdx=i;const els=$('fslines').children;for(let n=0;n<els.length;n++){els[n].classList.toggle('on',n===i);els[n].classList.toggle('past',n<i)}
+ const cur=LY.sync[i],nx=LY.sync.slice(i+1).find(l=>l.x);$('fstk1').textContent=cur?(cur.x||'• • •'):(LY.sync[0].x||'');$('fstk2').textContent=nx?nx.x:'';
+ if(i>=0&&Date.now()>lyFollow){const el=$('fslines'),c=els[i];if(c&&el.clientHeight)el.scrollTo({top:c.offsetTop-el.clientHeight*.32,behavior:'smooth'})}};
+let lastNI=-2;const syncFS=()=>{if(fsp.hidden)return;if(!(window._fsDrag&&window._fsDrag()))$('fsfill').style.width=$('pfill').style.width||'0';$('fscur').textContent=$('pcur').textContent;$('fsdur').textContent=$('pdur').textContent;
+ const playing=$('pplay').getAttribute('aria-label')==='Pause';$('fsplay').innerHTML=playing?'<svg width="32" height="32" viewBox="0 0 14 14"><rect x="3" y="2" width="3" height="10" rx=".6" fill="currentColor"/><rect x="8" y="2" width="3" height="10" rx=".6" fill="currentColor"/></svg>':'<svg width="32" height="32" viewBox="0 0 14 14"><path d="M4 1.8v10.4l8.4-5.2z" fill="currentColor" stroke="currentColor" stroke-linejoin="round"/></svg>';fsp.classList.toggle('paused',!playing);
+ if(lastNI!==NI&&NI>=0){lastNI=NI;const [t,a,g]=Q[NI];$('fst').textContent=t;$('fsa').textContent=a;$('fsyt').href=ytm(t+' '+a);$('fsrate').innerHTML=rateSel(t,a,'player');if(!$('fsart').style.backgroundImage)$('fsart').style.background=coverBg(t+a,g);$('fsqueue').innerHTML=$('queue').innerHTML;lyLoad()}};
 setInterval(syncFS,300);
-const _sn=setNow;setNow=(i,auto)=>{$('fsart').style.backgroundImage='';_sn(i,auto);lastNI=-2};
+// tapping any song opens the now-playing screen
+let tapT=0,tapEl=null;document.addEventListener('click',e=>{tapT=Date.now();tapEl=e.target},true);
+const _sn=setNow;setNow=(i,auto)=>{$('fsart').style.backgroundImage='';_sn(i,auto);lastNI=-2;
+ if(auto&&fsp.hidden&&Date.now()-tapT<800&&tapEl&&tapEl.closest&&!tapEl.closest('#player,#fsp,.player,.tabbar,#prev,#next,#playmix'))openFS();else syncFS()};
 // tab bar
 const IC={home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="2"/>',search:'<circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2"/>',disc:'<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 8.5l-2 5-5 2 2-5z" fill="currentColor"/>',lib:'<path d="M4 4v16M9 4v16M14 4l5 15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>',more:'<circle cx="5" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="19" cy="12" r="2" fill="currentColor"/>'};
 const TABS=[['overview','Home','home'],['search','Search','search'],['discovery','Discover','disc'],['library','Library','lib'],['more','More','more']];
