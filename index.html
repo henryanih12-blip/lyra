@@ -231,6 +231,65 @@ aside{transition:width .3s}.app{transition:grid-template-columns .3s}
 .sheet{position:fixed;right:14px;bottom:100px;z-index:31;width:min(420px,calc(100vw - 16px));background:#17131af2;border:1px solid #ffffff22;border-radius:22px;padding:14px;backdrop-filter:blur(20px);box-shadow:0 20px 50px -20px #000}
 .sheet[hidden]{display:none}.shead{display:flex;justify-content:space-between;align-items:center}.sheet iframe{width:100%;height:175px;border:0;border-radius:14px;margin:8px 0}
 @media(max-width:1000px){.pl-r{display:flex!important}.pl-r #pr{display:none!important}.sheet{right:8px;bottom:84px}.player{grid-template-columns:minmax(0,1fr) auto auto}}
+
+/* ===== UI 100x ===== */
+:root{--glass:rgba(22,16,26,.62)}
+body{background:#000}
+.glow{opacity:.9}
+.amb{position:fixed;inset:-10%;z-index:0;pointer-events:none;background-size:cover;background-position:center;filter:blur(90px) saturate(1.7);opacity:0;transition:opacity 1.2s,background-image .1s}
+.amb.on{opacity:.38}
+.mainp,aside,.now{background:var(--glass)!important;backdrop-filter:blur(28px) saturate(1.4);-webkit-backdrop-filter:blur(28px) saturate(1.4)}
+.card{backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.cover{box-shadow:0 24px 40px -22px #000,0 0 0 1px #ffffff10 inset}
+.cover i{transition:transform .6s cubic-bezier(.2,.8,.2,1),opacity .5s}.cover:hover i{transform:scale(1.06)}
+.cover.real .lbl,.cover.real .gn{display:none}
+.cover.real:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0000 55%,#0008);pointer-events:none}
+.cover .play{opacity:1;transform:scale(.85);background:#ffffffe6;box-shadow:0 6px 16px #0006;top:auto;bottom:10px;right:10px;width:38px;height:38px;transition:transform .2s}
+.cover:hover .play{transform:scale(1)}
+.ct{font-size:15px}.ab i{transition:transform .25s,box-shadow .25s}.ab i.real{color:transparent;text-shadow:none;border-radius:50%}
+.ab:hover i{box-shadow:0 0 0 3px var(--acc)}
+.mrow i,.step .sa{background-size:cover!important}
+.banner{min-height:clamp(280px,34vw,380px)}
+.bcol{position:absolute;right:-30px;top:50%;transform:translateY(-50%);display:grid;grid-template-columns:repeat(3,clamp(70px,9vw,120px));gap:12px;rotate:-12deg;opacity:.9;pointer-events:none}
+.bcol i{aspect-ratio:1;border-radius:16px;background:#ffffff10;box-shadow:0 20px 40px -12px #000;background-size:cover;background-position:center;transition:opacity .8s}
+.bcol i:nth-child(3n+2){translate:0 30px}
+.bin{z-index:2}.banner:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#0b0418 30%,#0b041800 75%);z-index:1;pointer-events:none}
+.pl-l{cursor:pointer}.pl-art{background-size:cover!important;box-shadow:0 8px 20px -6px #000}
+.player{background:rgba(24,18,28,.72);backdrop-filter:blur(30px) saturate(1.6);-webkit-backdrop-filter:blur(30px) saturate(1.6)}
+.nart{background-size:cover!important}
+/* full-screen player */
+.fsp{position:fixed;inset:0;z-index:60;overflow-y:auto;animation:up .45s cubic-bezier(.2,.8,.2,1) both}.fsp[hidden]{display:none}
+@keyframes up{from{transform:translateY(100%)}}
+.fsbg{position:fixed;inset:-20%;background:#120a16 center/cover;filter:blur(70px) saturate(1.8) brightness(.55);transform:scale(1.2)}
+.fsin{position:relative;max-width:520px;margin:0 auto;padding:18px 22px 40px;display:flex;flex-direction:column;gap:18px;min-height:100%}
+.fsclose{align-self:center;width:56px;height:36px;border:0;border-radius:999px;background:#ffffff1a;color:#fff;display:grid;place-items:center;cursor:pointer}
+.fsart{width:100%;aspect-ratio:1;border-radius:22px;background:#ffffff10 center/cover;box-shadow:0 40px 80px -30px #000;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.fsp.paused .fsart{transform:scale(.88)}
+.fsmeta{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}.fst{font:800 clamp(22px,6vw,28px)/1.1 Unbounded,sans-serif}.fsa{color:#ffffffb0;font-size:17px;margin-top:4px}
+.fsbar{height:7px;border-radius:4px;background:#ffffff30;position:relative;cursor:pointer}.fsbar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:#fff}
+.fstimes{display:flex;justify-content:space-between;font-size:12px;color:#ffffffa0;margin-top:6px}
+.fsctl{display:flex;justify-content:space-around;align-items:center}.pb.big{width:64px;height:64px;color:#fff}
+.fsplay{width:84px;height:84px;border-radius:50%;border:0;background:#fff;color:#000;display:grid;place-items:center;cursor:pointer;box-shadow:0 14px 30px -10px #000}
+.fsacts{display:flex;gap:10px;justify-content:center}.fsacts .btn{background:#ffffff1f;border-color:#ffffff2a;min-height:44px}
+.fsq{background:#0000003a;border-radius:20px;padding:14px}
+/* tab bar + more */
+.tabbar{display:none}
+.more{position:fixed;inset:0;z-index:55;background:#000a;backdrop-filter:blur(10px);display:flex;align-items:flex-end}.more[hidden]{display:none}
+.morein{width:100%;max-height:80vh;overflow:auto;background:#140f18;border-radius:26px 26px 0 0;padding:18px 18px 30px;animation:up .35s cubic-bezier(.2,.8,.2,1) both}
+.moregrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.moregrid button{min-height:64px;border-radius:16px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:600 15px Inter,sans-serif;text-align:left;padding:0 14px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.moregrid button i{width:10px;height:10px;border-radius:50%;flex:none}
+@media(max-width:1000px){
+ aside:not(.now) .nav#nav{display:none}aside:not(.now){justify-content:space-between}
+ .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(14,10,16,.82);backdrop-filter:blur(26px) saturate(1.5);-webkit-backdrop-filter:blur(26px) saturate(1.5);border-top:1px solid #ffffff14;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+ .tb{border:0;background:none;color:#ffffff80;font:600 11px Inter,sans-serif;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:50px;justify-content:center;cursor:pointer}
+ .tb svg{width:24px;height:24px}.tb[aria-current=page]{color:var(--acc)}
+ .player{bottom:calc(72px + env(safe-area-inset-bottom))}
+ .app{padding-bottom:170px}
+ .sheet{bottom:calc(150px + env(safe-area-inset-bottom))}
+ .bcol{right:-60px;opacity:.5}
+ h2{font-size:clamp(30px,8vw,40px)}
+}
 </style></head><body>
 <div class="glow" id="glow"></div>
 <div class="app">
@@ -451,6 +510,21 @@ aside{transition:width .3s}.app{transition:grid-template-columns .3s}
   <div class="pl-r"><button class="btn pri" id="fullbtn" type="button" aria-expanded="false">Full song</button><span id="pr" style="display:contents"></span></div>
   <div class="sheet" id="sheet" hidden><div class="shead"><b>Full song</b><button class="pb" id="shclose" type="button" aria-label="Close">✕</button></div><a class="btn pri" id="appopen" href="https://music.apple.com" target="_blank" rel="noopener" style="width:100%;justify-content:center;min-height:48px;margin:8px 0">Play full song in the Music app</a><div id="sfull"></div><p class="note">The button opens the song in your Music app, where it plays in full. The player below only plays in full if this browser is signed in to Apple Music.</p></div>
 </div>
+<div class="fsp" id="fsp" hidden role="dialog" aria-label="Now playing">
+  <div class="fsbg" id="fsbg"></div>
+  <div class="fsin">
+    <button class="fsclose" id="fsclose" type="button" aria-label="Close now playing"><svg width="26" height="26" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg></button>
+    <div class="fsart" id="fsart"></div>
+    <div class="fsmeta"><div><div class="fst" id="fst"></div><div class="fsa" id="fsa"></div></div><div id="fsrate"></div></div>
+    <div class="fsprog"><div class="fsbar" id="fsbar"><i id="fsfill"></i></div><div class="fstimes"><span id="fscur">0:00</span><span id="fsdur">0:30</span></div></div>
+    <div class="fsctl"><button class="pb big" id="fsprev" type="button" aria-label="Previous"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M6 5v14M19 5l-10 7 10 7z" fill="currentColor" stroke="currentColor" stroke-width="2"/></svg></button><button class="fsplay" id="fsplay" type="button" aria-label="Play or pause"></button><button class="pb big" id="fsnext" type="button" aria-label="Next"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M18 5v14M5 5l10 7-10 7z" fill="currentColor" stroke="currentColor" stroke-width="2"/></svg></button></div>
+    <div class="fsacts"><button class="btn" id="fsfull" type="button">Full song</button><a class="btn" id="fsyt" href="#" target="_blank" rel="noopener">YouTube Music</a></div>
+    <div class="fsq"><div class="nlbl">Up next</div><ol class="queue" id="fsqueue"></ol></div>
+  </div>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Main"></nav>
+<div class="more" id="more" hidden><div class="morein"><div class="shead"><b style="font:800 20px Unbounded,sans-serif">Everything in Lyra</b><button class="pb" id="moreclose" type="button" aria-label="Close">✕</button></div><div class="moregrid" id="moregrid"></div></div></div>
+
 <script>
 {
 const like=[
@@ -890,7 +964,7 @@ document.addEventListener('change',e=>{if(e.target.closest('select.rate:not([dat
 // ---------- web playback (iTunes previews + Apple Music embed) ----------
 const aud=$('aud');const cache={};let reqN=0;
 const fmt=s=>isFinite(s)?Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'):'0:30';
-const lookup=(t,a)=>{const k=t+'|'+a;if(cache[k])return Promise.resolve(cache[k]);return new Promise(res=>{const cb='itcb'+(++reqN);const sc=document.createElement('script');const done=v=>{delete window[cb];sc.remove();cache[k]=v;res(v)};
+const lookup=(t,a)=>{const k=t+'|'+a;if(cache[k])return Promise.resolve(cache[k]);if(window.findTrack2)return window.findTrack2(t,a);return new Promise(res=>{const cb='itcb'+(++reqN);const sc=document.createElement('script');const done=v=>{delete window[cb];sc.remove();cache[k]=v;res(v)};
  window[cb]=d=>{const r=(d&&d.results)||[];const al=a.toLowerCase().split(/ ft\.| & |,/)[0].trim();done(r.find(x=>(x.artistName||'').toLowerCase().includes(al))||r[0]||null)};
  sc.onerror=()=>done(null);setTimeout(()=>{if(window[cb])done(null)},8000);
  sc.src='https://itunes.apple.com/search?entity=song&limit=5&country=gb&callback='+cb+'&term='+encodeURIComponent(t+' '+a.replace(/ ft\..*/,''));document.head.appendChild(sc)})};
@@ -899,8 +973,8 @@ let curTrack=null;
 let loadTrack=async(auto)=>{if(NI<0)return;const [t,a]=Q[NI];const me=NI;$('full').innerHTML='<span class="note">Finding the song...</span>';
  const r=await lookup(t,a);if(me!==NI)return;curTrack=r;
  if(!r){$('full').innerHTML='<span class="note">Not found on Apple Music. Try YouTube.</span>';aud.removeAttribute('src');setIcon(false);return}
- const emb=`<iframe allow="autoplay *; encrypted-media *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/gb/song/${encodeURIComponent(String(r.trackId))}" title="Apple Music full song player"></iframe>`;if(!$('sheet').hidden){$('sfull').innerHTML=emb;$('appopen').href=String(r.trackViewUrl||'').startsWith('https://')?r.trackViewUrl:apple(t,a)}else $('sfull').dataset.emb='1';
- $('full').innerHTML=`<iframe allow="autoplay *; encrypted-media *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/gb/song/${encodeURIComponent(String(r.trackId))}" title="Apple Music player"></iframe><span class="note">Full song plays here when you're signed in to Apple Music.</span>`;
+ const emb=`<iframe allow="autoplay *; encrypted-media *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation" src="${r.trackId?'https://embed.music.apple.com/gb/song/'+encodeURIComponent(String(r.trackId)):'about:blank'}" title="Apple Music full song player"></iframe>`;if(!$('sheet').hidden){$('sfull').innerHTML=emb;$('appopen').href=String(r.trackViewUrl||'').startsWith('https://')?r.trackViewUrl:apple(t,a)}else $('sfull').dataset.emb='1';
+ $('full').innerHTML=`<iframe allow="autoplay *; encrypted-media *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation" src="${r.trackId?'https://embed.music.apple.com/gb/song/'+encodeURIComponent(String(r.trackId)):'about:blank'}" title="Apple Music player"></iframe><span class="note">Full song plays here when you're signed in to Apple Music.</span>`;
  if(r.artworkUrl100){const art=`url("${String(r.artworkUrl100).replace('100x100','600x600')}") center/cover`;$('part').style.background=art;$('nart2').style.background=art}
  if(r.previewUrl){aud.src=r.previewUrl;if(auto){try{await aud.play()}catch(_){setIcon(false)}}}};
 const _setNow=setNow;setNow=(i,auto)=>{_setNow(i);aud.pause();setIcon(false);$('pfill').style.width='0';$('pcur').textContent='0:00';loadTrack(auto)};
@@ -915,9 +989,13 @@ $('fullbtn').addEventListener('click',()=>{setApp();const s=$('sheet');s.hidden=
 $('shclose').addEventListener('click',()=>$('fullbtn').click());
 // ---------- search any song ----------
 const itunesJsonp=(term,limit)=>new Promise(res=>{const cb='its'+(++reqN);const sc=document.createElement('script');const done=v=>{delete window[cb];sc.remove();res(v)};
- window[cb]=d=>done((d&&d.results)||[]);sc.onerror=()=>done(null);setTimeout(()=>{if(window[cb])done(null)},9000);
+ window[cb]=d=>done((d&&d.results)||[]);sc.onerror=()=>done(null);setTimeout(()=>{if(window[cb])done(null)},6000);
  sc.src='https://itunes.apple.com/search?media=music&entity=song&country=gb&limit='+limit+'&callback='+cb+'&term='+encodeURIComponent(term);document.head.appendChild(sc)});
-const itunes=async(term,limit)=>{try{const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),8000);const r=await fetch('https://itunes.apple.com/search?media=music&entity=song&country=gb&limit='+limit+'&term='+encodeURIComponent(term),{signal:ctl.signal});clearTimeout(tm);if(r.ok){const d=await r.json();return d.results||[]}}catch(_){}return itunesJsonp(term,limit)};
+const deezer=(term,limit)=>new Promise(res=>{const cb='dz'+(++reqN);const sc=document.createElement('script');const done=v=>{delete window[cb];sc.remove();res(v)};
+ window[cb]=d=>done(((d&&d.data)||[]).map(x=>({trackId:null,trackName:x.title,artistName:x.artist&&x.artist.name,collectionName:x.album&&x.album.title,artworkUrl100:x.album&&x.album.cover_big,previewUrl:x.preview,primaryGenreName:'Song',src:'deezer'})));sc.onerror=()=>done(null);setTimeout(()=>{if(window[cb])done(null)},7000);
+ sc.src='https://api.deezer.com/search?output=jsonp&limit='+limit+'&callback='+cb+'&q='+encodeURIComponent(term);document.head.appendChild(sc)});
+const itunes=async(term,limit)=>{const r=await itunesRaw(term,limit);if(r&&r.length)return r;const d=await deezer(term,limit);return d&&d.length?d:r};
+const itunesRaw=async(term,limit)=>{try{const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),6000);const r=await fetch('https://itunes.apple.com/search?media=music&entity=song&country=gb&limit='+limit+'&term='+encodeURIComponent(term),{signal:ctl.signal});clearTimeout(tm);if(r.ok){const d=await r.json();return d.results||[]}}catch(_){}return itunesJsonp(term,limit)};
 const gOf=x=>{const g=String(x.primaryGenreName||'').toLowerCase();return /afro|african|world/.test(g)?'afro':/hip|rap/.test(g)?'trap':/uk|grime|drill/.test(g)?'uk':'rnb'};
 let SR=[];
 const doSearch=async term=>{term=term.trim();if(!term)return;go('search');window.scrollTo({top:0});$('sh').textContent='Results for "'+term+'"';$('ss').textContent='Searching Apple Music...';$('sres').innerHTML='';
@@ -954,6 +1032,52 @@ fbn.addEventListener('click',async()=>{if(MK){if(!MK.isAuthorized){try{await MK.
  setApp();const s=$('sheet');s.hidden=!s.hidden;fbn.setAttribute('aria-expanded',String(!s.hidden));if(!s.hidden){aud.pause();$('sfull').innerHTML=curTrack?`<iframe allow="autoplay *; encrypted-media *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/gb/song/${encodeURIComponent(String(curTrack.trackId))}" title="Apple Music full song player"></iframe>`:'<p class="note">Pick a song first.</p>'}else $('sfull').innerHTML=''});
 
 setNow(0,false);
+
+// ===== UI 100x: real artwork, ambient colour, full-screen player, tab bar =====
+const findTrack=async(t,a)=>{const k=t+'|'+a;if(k in cache)return cache[k];const r=await itunes(t+' '+String(a).replace(/ ft\..*| & .*/,''),5);let v=null;if(r&&r.length){const al=String(a).toLowerCase().split(/ ft\.| & |,/)[0].trim();v=r.find(x=>(x.artistName||'').toLowerCase().includes(al))||r[0]}cache[k]=v;return v};
+window.findTrack2=findTrack;const big=u=>String(u||'').replace(/\d+x\d+bb/,'600x600bb');
+const artQ=[];let artBusy=0;const pump=()=>{while(artBusy<3&&artQ.length){const job=artQ.shift();artBusy++;findTrack(job.t,job.a).then(v=>{const u=v&&big(v.artworkUrl100);if(u&&u.startsWith('https://'))job.set(u)}).catch(()=>{}).finally(()=>{artBusy--;pump()})}};
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(!e.isIntersecting)return;io.unobserve(e.target);const j=e.target._job;if(j){artQ.push(j);pump()}})},{rootMargin:'300px'});
+const withArt=(el,u)=>{const img=new Image();img.onload=()=>{el.style.backgroundImage=`url("${u}")`;el.style.backgroundSize='cover';el.style.backgroundPosition='center'};img.src=u};
+const decorate=()=>{
+ document.querySelectorAll('a.cover:not([data-ad])').forEach(c=>{c.dataset.ad=1;const i=c.querySelector('i');c._job={t:c.dataset.t,a:c.dataset.a,set:u=>{withArt(i,u);c.classList.add('real')}};io.observe(c)});
+ document.querySelectorAll('.mrow:not([data-ad])').forEach(m=>{m.dataset.ad=1;const b=m.querySelector('b'),s=m.querySelector('small'),i=m.querySelector('i');if(!b||!s||!i)return;m._job={t:b.textContent,a:s.textContent,set:u=>withArt(i,u)};io.observe(m)});
+ document.querySelectorAll('.ab:not([data-ad])').forEach(m=>{m.dataset.ad=1;const n=m.dataset.artist,x=inLib(n),i=m.querySelector('i');if(!x)return;m._job={t:x.songs[0],a:n,set:u=>{withArt(i,u);i.classList.add('real')}};io.observe(m)});
+ document.querySelectorAll('.step:not([data-ad])').forEach(m=>{m.dataset.ad=1;const b=m.querySelector('b'),s=m.querySelector('.ca'),i=m.querySelector('.sa');if(!b||!s||!i)return;m._job={t:b.textContent,a:s.textContent,set:u=>withArt(i,u)};io.observe(m)});
+ document.querySelectorAll('.battle button:not([data-ad])').forEach(m=>{m.dataset.ad=1;const b=m.querySelector('b'),s=m.querySelector('.ca'),i=m.querySelector('.bc');if(!b||!s||!i)return;m._job={t:b.textContent,a:s.textContent,set:u=>withArt(i,u)};io.observe(m)})};
+let decT=0;new MutationObserver(()=>{clearTimeout(decT);decT=setTimeout(decorate,120)}).observe(document.body,{childList:true,subtree:true});decorate();
+// banner collage
+{const bc=document.createElement('div');bc.className='bcol';bc.setAttribute('aria-hidden','true');const picks=[like[16],like[0],like[10],like[21],like[3],like[18]];bc.innerHTML=picks.map(()=>'<i></i>').join('');document.querySelector('.banner').appendChild(bc);
+ picks.forEach((s,n)=>findTrack(s[0],s[1]).then(v=>{const u=v&&big(v.artworkUrl100);if(u&&u.startsWith('https://'))withArt(bc.children[n],u)}))}
+// ambient colour from current artwork
+const amb=document.createElement('div');amb.className='amb';document.body.prepend(amb);
+const tint=u=>{amb.style.backgroundImage=`url("${u}")`;amb.classList.add('on');$('fsbg').style.backgroundImage=`url("${u}")`;
+ const img=new Image();img.crossOrigin='anonymous';img.onload=()=>{try{const c=document.createElement('canvas');c.width=c.height=8;const x=c.getContext('2d');x.drawImage(img,0,0,8,8);const d=x.getImageData(0,0,8,8).data;let r=0,g=0,b=0,n=0;for(let i=0;i<d.length;i+=4){const mx=Math.max(d[i],d[i+1],d[i+2]),mn=Math.min(d[i],d[i+1],d[i+2]);if(mx-mn>30&&mx>60){r+=d[i];g+=d[i+1];b+=d[i+2];n++}}if(n){const k=Math.max(1,180/Math.max(r/n,g/n,b/n));document.documentElement.style.setProperty('--acc',`rgb(${Math.min(255,r/n*k|0)},${Math.min(255,g/n*k|0)},${Math.min(255,b/n*k|0)})`)}}catch(_){}};img.src=u};
+const _lt=loadTrack;loadTrack=async auto=>{await _lt(auto);const v=curTrack;const u=v&&big(v.artworkUrl100);if(u&&u.startsWith('https://')){tint(u);$('fsart').style.backgroundImage=`url("${u}")`;$('part').style.background=`url("${u}") center/cover`;$('nart2').style.background=`url("${u}") center/cover`}};
+// full-screen player
+const openFS=()=>{$('fsp').hidden=false;document.body.style.overflow='hidden';syncFS()};const closeFS=()=>{$('fsp').hidden=true;document.body.style.overflow=''};
+document.querySelector('.pl-l').addEventListener('click',openFS);$('nart2').addEventListener('click',openFS);$('nart2').style.cursor='pointer';
+$('fsclose').addEventListener('click',closeFS);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('fsp').hidden)closeFS()});
+$('fsplay').addEventListener('click',()=>$('pplay').click());$('fsprev').addEventListener('click',()=>$('prev').click());$('fsnext').addEventListener('click',()=>$('next').click());
+$('fsfull').addEventListener('click',()=>{closeFS();$('fullbtn').click()});
+$('fsbar').addEventListener('click',e=>{const r=$('fsbar').getBoundingClientRect();if(aud.duration)aud.currentTime=aud.duration*(e.clientX-r.left)/r.width});
+$('fsqueue').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(b)setNow(+b.dataset.q,true)});
+let lastNI=-2;const syncFS=()=>{if($('fsp').hidden)return;$('fsfill').style.width=$('pfill').style.width||'0';$('fscur').textContent=$('pcur').textContent;$('fsdur').textContent=$('pdur').textContent;
+ const playing=$('pplay').getAttribute('aria-label')==='Pause';$('fsplay').innerHTML=playing?'<svg width="34" height="34" viewBox="0 0 14 14"><rect x="3" y="2" width="3" height="10" fill="currentColor"/><rect x="8" y="2" width="3" height="10" fill="currentColor"/></svg>':'<svg width="34" height="34" viewBox="0 0 14 14"><path d="M3.5 1.5v11l9-5.5z" fill="currentColor"/></svg>';$('fsp').classList.toggle('paused',!playing);
+ if(lastNI!==NI&&NI>=0){lastNI=NI;const [t,a,g]=Q[NI];$('fst').textContent=t;$('fsa').textContent=a;$('fsyt').href=ytm(t+' '+a);$('fsrate').innerHTML=rateSel(t,a,'player');if(!$('fsart').style.backgroundImage)$('fsart').style.background=coverBg(t+a,g);$('fsqueue').innerHTML=$('queue').innerHTML}};
+setInterval(syncFS,300);
+const _sn=setNow;setNow=(i,auto)=>{$('fsart').style.backgroundImage='';_sn(i,auto);lastNI=-2};
+// tab bar
+const IC={home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="2"/>',search:'<circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2"/>',disc:'<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 8.5l-2 5-5 2 2-5z" fill="currentColor"/>',lib:'<path d="M4 4v16M9 4v16M14 4l5 15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>',more:'<circle cx="5" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="19" cy="12" r="2" fill="currentColor"/>'};
+const TABS=[['overview','Home','home'],['search','Search','search'],['discovery','Discover','disc'],['library','Library','lib'],['more','More','more']];
+$('tabbar').innerHTML=TABS.map(t=>`<button class="tb" type="button" data-tab="${t[0]}"><svg viewBox="0 0 24 24" aria-hidden="true">${IC[t[2]]}</svg>${t[1]}</button>`).join('');
+$('moregrid').innerHTML=pages.map(p=>`<button type="button" data-goto="${p.id}"><i style="background:${p.dataset.c}"></i>${esc(p.dataset.t)}</button>`).join('');
+const markTab=()=>{const cur=pages.find(p=>!p.hidden);const id=cur?cur.id:'';document.querySelectorAll('.tb').forEach(b=>{const on=b.dataset.tab===id||(b.dataset.tab==='more'&&!TABS.slice(0,4).some(t=>t[0]===id));if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')})};
+$('tabbar').addEventListener('click',e=>{const b=e.target.closest('.tb');if(!b)return;const t=b.dataset.tab;if(t==='more'){$('more').hidden=false;return}go(t);window.scrollTo({top:0});if(t==='search'){if(!$('sres').children.length){$('sh').textContent='Search any song';$('ss').textContent='Type a song or artist above. Results appear as you type.'}$('gsearch').focus()}markTab()});
+$('moregrid').addEventListener('click',e=>{const b=e.target.closest('[data-goto]');if(!b)return;$('more').hidden=true;go(b.dataset.goto);window.scrollTo({top:0});markTab()});
+$('moreclose').addEventListener('click',()=>$('more').hidden=true);$('more').addEventListener('click',e=>{if(e.target===$('more'))$('more').hidden=true});
+new MutationObserver(markTab).observe(document.querySelector('main'),{attributes:true,subtree:true,attributeFilter:['hidden']});markTab();
+
 }
 </script>
 </body></html>
